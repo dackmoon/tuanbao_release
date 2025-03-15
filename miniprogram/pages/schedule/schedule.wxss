@@ -1,0 +1,854 @@
+/* pages/schedule/schedule.wxss */
+page {
+  background-color: #f7f9fc;
+  color: #333333;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.schedule-container {
+  display: flex;
+  flex-direction: column;
+  padding: 20rpx;
+  background-color: #f8f8f8;
+  min-height: 100vh;
+}
+
+/* 顶部标题栏 */
+.header {
+  padding: 30rpx 40rpx;
+  background-color: #ffffff;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  margin-bottom: 20rpx;
+}
+
+.header-title {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #333333;
+}
+
+/* 日历部分 */
+.calendar-header {
+  background-color: #ffffff;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+  margin-bottom: 30rpx;
+}
+
+.month-selector {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30rpx;
+}
+
+.current-month {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.arrow {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f7ff;
+  border-radius: 50%;
+  color: #1296db;
+  font-weight: bold;
+  font-size: 32rpx;
+}
+
+.weekdays {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.weekday {
+  width: 14.28%;
+  text-align: center;
+  font-size: 28rpx;
+  color: #888;
+}
+
+.calendar-grid {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.day {
+  width: 14.28%;
+  height: 80rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 10rpx;
+}
+
+.day-number {
+  font-size: 30rpx;
+  color: #333;
+}
+
+.day.current .day-number {
+  color: #1296db;
+  font-weight: bold;
+}
+
+.day.selected {
+  background-color: #e6f7ff;
+  border-radius: 50%;
+}
+
+.day.has-event {
+  position: relative;
+}
+
+.day.has-event .day-number {
+  color: #333;
+  font-weight: normal;
+}
+
+.day.has-event .day-indicator {
+  width: 8rpx;
+  height: 8rpx;
+  background-color: #ff6b6b;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 10rpx;
+}
+
+/* 日程列表 */
+.events-container {
+  flex: 1;
+  background-color: #ffffff;
+  border-radius: 20rpx;
+  padding: 10px 15px;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+}
+
+.date-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.event-list {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.event-card {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  background-color: #fff;
+  border-bottom: 1px solid #f0f0f0;
+  position: relative;
+}
+
+.event-card:last-child {
+  border-bottom: none;
+}
+
+.event-number {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #1989fa;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.event-time {
+  width: 70px;
+  color: #1989fa;
+  font-size: 14px;
+  font-weight: 500;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.event-content {
+  flex: 1;
+  overflow: hidden;
+}
+
+.event-title-row {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.event-title {
+  font-size: 15px;
+  color: #333;
+  font-weight: 500;
+  margin-right: 8px;
+  line-height: 1.2;
+}
+
+.event-desc-inline {
+  font-size: 12px;
+  color: #999;
+  font-style: italic;
+  line-height: 1.2;
+}
+
+.event-desc {
+  font-size: 12px;
+  color: #999;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.event-actions {
+  display: flex;
+  align-items: center;
+}
+
+.action-btn {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  margin-left: 5px;
+}
+
+.action-icon {
+  font-size: 16px;
+}
+
+.edit {
+  color: #1989fa;
+}
+
+.delete {
+  color: #ff4d4f;
+}
+
+.empty-tip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.empty-image {
+  width: 120px;
+  height: 120px;
+  margin-bottom: 15px;
+}
+
+.empty-text {
+  color: #999;
+  font-size: 14px;
+}
+
+/* 添加按钮 */
+.add-btn {
+  position: fixed;
+  bottom: 60rpx;
+  right: 60rpx;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, #42b0ff, #1296db);
+  padding: 20rpx 40rpx;
+  border-radius: 50rpx;
+  box-shadow: 0 6rpx 20rpx rgba(18, 150, 219, 0.3);
+}
+
+.add-icon {
+  font-size: 40rpx;
+  color: #fff;
+  margin-right: 10rpx;
+}
+
+.add-text {
+  color: #fff;
+  font-size: 30rpx;
+}
+
+/* 弹出层 */
+.popup-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.popup-mask.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.popup-container {
+  position: fixed;
+  z-index: 101;
+  background-color: #fff;
+  transition: all 0.3s ease;
+  border-radius: 20rpx 20rpx 0 0;
+  overflow: hidden;
+}
+
+.bottom-popup {
+  left: 0;
+  right: 0;
+  bottom: -100%;
+  transform: translateY(0);
+}
+
+.bottom-popup.show {
+  bottom: 0;
+  transform: translateY(0);
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1px solid #eeeeee;
+}
+
+.popup-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333333;
+}
+
+.popup-close {
+  font-size: 40rpx;
+  color: #999999;
+  padding: 10rpx;
+}
+
+.add-options {
+  padding: 30rpx;
+}
+
+.option-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20rpx;
+  border-radius: 12rpx;
+  height: 90rpx;
+  font-size: 30rpx;
+}
+
+.option-text {
+  font-size: 32rpx;
+}
+
+.primary {
+  background-color: #4a6cf7;
+  color: #fff;
+}
+
+.info {
+  background-color: #e8f0fe;
+  color: #4a6cf7;
+}
+
+.default {
+  background-color: #f7f7f7;
+  color: #333333;
+}
+
+.add-form {
+  padding: 30rpx;
+}
+
+.form-group {
+  margin-bottom: 30rpx;
+}
+
+.form-label {
+  display: block;
+  font-size: 28rpx;
+  color: #666666;
+  margin-bottom: 16rpx;
+}
+
+.form-input {
+  width: 100%;
+  height: 80rpx;
+  border: 1rpx solid #eeeeee;
+  border-radius: 12rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+  background-color: #f9f9f9;
+}
+
+.form-textarea {
+  width: 100%;
+  min-height: 200rpx;
+  border: 1rpx solid #eeeeee;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+  background-color: #f9f9f9;
+}
+
+.input-limit {
+  text-align: right;
+  font-size: 24rpx;
+  color: #999999;
+  margin-top: 10rpx;
+}
+
+.form-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 40rpx;
+}
+
+.form-button {
+  width: 45%;
+  border-radius: 12rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  font-size: 30rpx;
+}
+
+/* 年月选择器样式 */
+.year-month-picker {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+}
+
+.picker-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.picker-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #fff;
+  border-radius: 30rpx 30rpx 0 0;
+  padding: 30rpx;
+  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.1);
+}
+
+.picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20rpx;
+  border-bottom: 2rpx solid #f0f0f0;
+  margin-bottom: 20rpx;
+}
+
+.picker-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.picker-close {
+  font-size: 40rpx;
+  color: #999;
+  padding: 10rpx;
+}
+
+.year-selector, .month-selector-list {
+  margin-bottom: 30rpx;
+}
+
+.selector-title {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 20rpx;
+}
+
+.year-list {
+  height: 300rpx;
+  white-space: nowrap;
+}
+
+.year-item {
+  padding: 20rpx 30rpx;
+  font-size: 30rpx;
+  color: #333;
+  display: inline-block;
+  margin-right: 20rpx;
+  border-radius: 10rpx;
+}
+
+.year-item.active {
+  background-color: #e6f7ff;
+  color: #1296db;
+  font-weight: bold;
+}
+
+.month-list {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.month-item {
+  width: 25%;
+  padding: 20rpx 0;
+  text-align: center;
+  font-size: 30rpx;
+  color: #333;
+  margin-bottom: 20rpx;
+  border-radius: 10rpx;
+}
+
+.month-item.active {
+  background-color: #e6f7ff;
+  color: #1296db;
+  font-weight: bold;
+}
+
+/* 添加选项弹窗样式 */
+.add-options-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.add-options-container {
+  width: 70%;
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  display: flex;
+  justify-content: space-around;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+}
+
+.add-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30rpx 15rpx;
+  border-radius: 12rpx;
+  width: 40%;
+  transition: all 0.2s;
+  background-color: #f7f9fc;
+}
+
+.add-option:first-child {
+  border-left: 3rpx solid #1296db;
+}
+
+.add-option:last-child {
+  border-left: 3rpx solid #ff9500;
+}
+
+.add-option:active {
+  opacity: 0.8;
+}
+
+.option-icon {
+  font-size: 50rpx;
+  margin-bottom: 16rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-option:first-child .option-icon {
+  color: #1296db;
+}
+
+.add-option:last-child .option-icon {
+  color: #ff9500;
+}
+
+.option-text {
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.add-option:first-child .option-text {
+  color: #1296db;
+}
+
+.add-option:last-child .option-text {
+  color: #ff9500;
+}
+
+/* 删除装饰元素 */
+.add-option::before,
+.add-option::after {
+  display: none;
+}
+
+/* 保存和取消按钮样式 */
+.add-event-btns {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30rpx;
+}
+
+.btn {
+  width: 45%;
+  padding: 18rpx 0;
+  border-radius: 6rpx;
+  font-size: 28rpx;
+  text-align: center;
+  font-weight: 500;
+  transition: all 0.2s;
+  box-shadow: none;
+}
+
+.btn:active {
+  opacity: 0.85;
+  transform: none;
+}
+
+.cancel-btn {
+  background-color: #f5f5f5;
+  color: #666;
+  border: none;
+}
+
+.save-btn {
+  background-color: #1296db;
+  color: #fff;
+  border: none;
+}
+
+/* 批量保存按钮特殊样式 */
+.batch-save-btn {
+  background-color: #ff9500 !important;
+}
+
+/* 添加日程弹窗样式 */
+.add-event-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.add-event-container {
+  width: 80%;
+  background-color: #fff;
+  border-radius: 12rpx;
+  padding: 30rpx;
+  max-height: 75vh;
+  overflow-y: auto;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+}
+
+.add-event-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 15rpx;
+  text-align: center;
+  position: relative;
+  padding-bottom: 15rpx;
+}
+
+.add-event-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60rpx;
+  height: 3rpx;
+  background-color: #1296db;
+}
+
+.add-event-date {
+  font-size: 24rpx;
+  color: #666;
+  margin-bottom: 25rpx;
+  text-align: center;
+}
+
+.add-event-form {
+  margin-bottom: 30rpx;
+}
+
+.event-input {
+  border: 1rpx solid #eaeaea;
+  border-radius: 8rpx;
+  padding: 15rpx;
+  font-size: 28rpx;
+  margin-bottom: 20rpx;
+  background-color: #f7f9fc;
+}
+
+.time-selector, .date-range-selector {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20rpx;
+  border: 1rpx solid #eaeaea;
+  border-radius: 8rpx;
+  background-color: #f7f9fc;
+  padding: 15rpx 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 添加中间分隔线 */
+.time-selector::after, .date-range-selector::after {
+  content: '';
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  height: 60%;
+  width: 1rpx;
+  background-color: #eaeaea;
+}
+
+.time-item, .date-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 50%;
+  padding: 10rpx 0;
+  transition: all 0.2s;
+  position: relative;
+  z-index: 1;
+}
+
+.time-item:active, .date-item:active {
+  background-color: #f0f7ff;
+}
+
+.time-label, .date-label {
+  font-size: 22rpx;
+  color: #999;
+  margin-bottom: 8rpx;
+  text-align: center;
+}
+
+.time-value, .date-value {
+  font-size: 30rpx;
+  color: #333;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* 移除小图标，使用更简洁的设计 */
+.time-item::after, .date-item::after {
+  display: none;
+}
+
+.add-event-btns {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30rpx;
+}
+
+.btn {
+  width: 45%;
+  padding: 18rpx 0;
+  border-radius: 6rpx;
+  font-size: 28rpx;
+  text-align: center;
+  font-weight: 500;
+  transition: all 0.2s;
+  box-shadow: none;
+}
+
+.btn:active {
+  opacity: 0.85;
+  transform: none;
+}
+
+.cancel-btn {
+  background-color: #f5f5f5;
+  color: #666;
+  border: none;
+}
+
+.save-btn {
+  background-color: #1296db;
+  color: #fff;
+  border: none;
+}
+
+/* 批量保存按钮特殊样式 */
+.batch-save-btn {
+  background-color: #ff9500 !important;
+}
+
+.time-container {
+  margin: 10px 0;
+}
+
+.time-box {
+  display: flex;
+  align-items: center;
+  background-color: #f8f8f8;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.time-label {
+  width: 40px;
+  font-size: 14px;
+  color: #666;
+}
+
+.time-value-box {
+  flex: 1;
+  height: 30px;
+  line-height: 30px;
+  padding: 0 10px;
+  background-color: #fff;
+  border-radius: 4px;
+  color: #333;
+  font-size: 14px;
+}

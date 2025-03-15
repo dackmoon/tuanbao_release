@@ -1,0 +1,9 @@
+/* pages/record/record.wxss */
+.record-container {
+  padding: 20rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #edf4ff;
+}

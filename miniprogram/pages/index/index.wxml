@@ -1,0 +1,83 @@
+<!-- 首页轮播图 -->
+<view class="swiper-container">
+  <swiper class="swiper" 
+    indicator-dots="{{true}}" 
+    autoplay="{{true}}" 
+    interval="{{3000}}" 
+    duration="{{500}}"
+    circular="{{true}}"
+    indicator-color="rgba(255, 255, 255, 0.6)"
+    indicator-active-color="#ffffff">
+    <swiper-item wx:for="{{swiperList}}" wx:key="id">
+      <view class="image-container image-position-{{item.id}}">
+        <image 
+          src="{{item.imageUrl}}" 
+          mode="aspectFill" 
+          class="swiper-image"
+          lazy-load="true">
+        </image>
+      </view>
+      <view class="swiper-title">{{item.title}}</view>
+    </swiper-item>
+  </swiper>
+</view>
+
+<!-- 导航栏 -->
+<view class="nav-container">
+  <view class="nav-row">
+    <!-- 第一行导航 -->
+    <navigator url="/pages/schedule/schedule" open-type="switchTab" class="nav-item">
+      <view class="nav-icon-wrapper">
+        <image class="nav-icon" src="/assert/icon/schedule_selected.png"></image>
+      </view>
+      <text class="nav-text">日程</text>
+    </navigator>
+    <navigator url="/pages/record/record" open-type="switchTab" class="nav-item">
+      <view class="nav-icon-wrapper">
+        <image class="nav-icon" src="/assert/icon/record_selected.png"></image>
+      </view>
+      <text class="nav-text">瞬间</text>
+    </navigator>
+    <view class="nav-item" bindtap="showDeveloping">
+      <view class="nav-icon-wrapper">
+        <image class="nav-icon" src="/assert/icon/growth_selected.png"></image>
+      </view>
+      <text class="nav-text">成长数据</text>
+    </view>
+    <view class="nav-item" bindtap="showDeveloping">
+      <view class="nav-icon-wrapper">
+        <image class="nav-icon" src="/assert/icon/study_selected.png"></image>
+      </view>
+      <text class="nav-text">学习</text>
+    </view>
+  </view>
+  
+  <view class="nav-row">
+    <!-- 第二行导航 -->
+    <view class="nav-item" bindtap="showDeveloping">
+      <view class="nav-icon-wrapper">
+        <image class="nav-icon" src="/assert/icon/memo_selected.png"></image>
+      </view>
+      <text class="nav-text">备忘录</text>
+    </view>
+    <view class="nav-item" bindtap="showDeveloping">
+      <view class="nav-icon-wrapper">
+        <image class="nav-icon" src="/assert/icon/education_selected.png"></image>
+      </view>
+      <text class="nav-text">教育</text>
+    </view>
+    <view class="nav-item" bindtap="showDeveloping">
+      <view class="nav-icon-wrapper">
+        <image class="nav-icon" src="/assert/icon/finance_selected.png"></image>
+      </view>
+      <text class="nav-text">金融</text>
+    </view>
+    <view class="nav-item" bindtap="showDeveloping">
+      <view class="nav-icon-wrapper">
+        <image class="nav-icon" src="/assert/icon/tools_selected.png"></image>
+      </view>
+      <text class="nav-text">工具</text>
+    </view>
+  </view>
+</view>
+

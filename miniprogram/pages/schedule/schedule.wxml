@@ -1,0 +1,181 @@
+<view class="schedule-container">
+  <!-- 顶部日历选择器 -->
+  <view class="calendar-header">
+    <view class="month-selector">
+      <view class="arrow" bindtap="prevMonth">〈</view>
+      <picker mode="multiSelector" bindchange="bindDateChange" value="{{[yearIndex, monthIndex]}}" range="{{[yearArray, monthArray]}}">
+        <view class="current-month">{{year}}年{{month}}月</view>
+      </picker>
+      <view class="arrow" bindtap="nextMonth">〉</view>
+    </view>
+    
+    <!-- 星期指示器 -->
+    <view class="weekdays">
+      <view class="weekday" wx:for="{{weekdays}}" wx:key="index">{{item}}</view>
+    </view>
+    
+    <!-- 日历网格 -->
+    <view class="calendar-grid">
+      <view class="day {{item.current ? 'current' : ''}} {{item.hasEvent ? 'has-event' : ''}} {{item.selected ? 'selected' : ''}}" 
+            wx:for="{{days}}" 
+            wx:key="index"
+            bindtap="selectDay"
+            data-day="{{item.day}}"
+            data-index="{{index}}">
+        <view class="day-number">{{item.day}}</view>
+        <view class="day-indicator" wx:if="{{item.hasEvent}}"></view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 日程列表 -->
+  <view class="events-container">
+    <view class="date-title">{{selectedDate}}</view>
+    
+    <block wx:if="{{dayEvents.length > 0}}">
+      <view class="event-list">
+        <view class="event-card" wx:for="{{dayEvents}}" wx:key="id">
+          <view class="event-number">{{index + 1}}</view>
+          <view class="event-time">{{item.eventTime || '全天'}}</view>
+          <view class="event-content">
+            <view class="event-title-row">
+              <text class="event-title">{{item.title}}</text>
+              <text class="event-desc-inline" wx:if="{{item.description && item.description !== '无描述'}}">{{item.description}}</text>
+            </view>
+          </view>
+          <view class="event-actions">
+            <view class="action-btn edit" bindtap="editEvent" data-id="{{item.id}}">
+              <text class="action-icon">✎</text>
+            </view>
+            <view class="action-btn delete" bindtap="deleteEvent" data-id="{{item.id}}">
+              <text class="action-icon">✕</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </block>
+    
+    <view class="empty-tip" wx:else>
+      <image class="empty-image"></image>
+      <view class="empty-text">今天还没有安排哦~</view>
+    </view>
+    
+    <!-- 添加按钮 -->
+    <view class="add-btn" bindtap="showAddOptions">
+      <view class="add-icon">+</view>
+      <view class="add-text">添加日程</view>
+    </view>
+  </view>
+  
+  <!-- 年月选择器弹窗 -->
+  <view class="year-month-picker" wx:if="{{showYearMonthPicker}}">
+    <view class="picker-mask" bindtap="closeYearMonthSelector"></view>
+    <view class="picker-content">
+      <view class="picker-header">
+        <view class="picker-title">选择年月</view>
+        <view class="picker-close" bindtap="closeYearMonthSelector">×</view>
+      </view>
+      
+      <view class="year-selector">
+        <view class="selector-title">年份</view>
+        <scroll-view scroll-y class="year-list">
+          <view class="year-item {{item === year ? 'active' : ''}}" 
+                wx:for="{{yearRange}}" 
+                wx:key="*this"
+                bindtap="selectYear"
+                data-year="{{item}}">
+            {{item}}
+          </view>
+        </scroll-view>
+      </view>
+      
+      <view class="month-selector-list">
+        <view class="selector-title">月份</view>
+        <view class="month-list">
+          <view class="month-item {{index + 1 === month ? 'active' : ''}}" 
+                wx:for="{{12}}" 
+                wx:key="index"
+                bindtap="selectMonth"
+                data-month="{{index + 1}}">
+            {{index + 1}}月
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 添加选项弹窗 -->
+  <view class="add-options-mask" wx:if="{{showAddOptions}}" bindtap="hideAddOptions">
+    <view class="add-options-container" catchtap="stopPropagation">
+      <view class="add-option" bindtap="showAddSingle">
+        <view class="option-icon">+</view>
+        <view class="option-text">添加</view>
+      </view>
+      <view class="add-option" bindtap="showAddBatch">
+        <view class="option-icon">++</view>
+        <view class="option-text">批量添加</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 单个添加弹窗 -->
+  <view class="add-event-mask" wx:if="{{showSingleAdd}}" bindtap="hideSingleAdd">
+    <view class="add-event-container" catchtap="stopPropagation">
+      <view class="add-event-title">{{editingEventId ? '编辑日程' : '添加日程'}}</view>
+      <view class="add-event-date">{{selectedDate}}</view>
+      <view class="add-event-form">
+        <input class="event-input" placeholder="请输入日程内容" bindinput="inputEvent" value="{{eventContent}}"/>
+        <view class="time-container">
+          <view class="time-box">
+            <text class="time-label">时间</text>
+            <picker mode="time" value="{{eventTime}}" bindchange="bindEventTimeChange">
+              <view class="time-value-box">{{eventTime}}</view>
+            </picker>
+          </view>
+        </view>
+        <textarea class="event-desc" placeholder="添加描述（可选）" bindinput="inputDesc" value="{{eventDesc}}"></textarea>
+      </view>
+      <view class="add-event-btns">
+        <button class="btn cancel-btn" bindtap="cancelAdd">取消</button>
+        <button class="btn save-btn" bindtap="saveEvent">{{editingEventId ? '保存修改' : '保存'}}</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 批量添加弹窗 -->
+  <view class="add-event-mask" wx:if="{{showBatchAdd}}" bindtap="hideBatchAdd">
+    <view class="add-event-container" catchtap="stopPropagation">
+      <view class="add-event-title">批量添加日程</view>
+      <view class="add-event-form">
+        <input class="event-input" placeholder="请输入日程内容" bindinput="inputEvent" value="{{eventContent}}"/>
+        <view class="time-container">
+          <view class="time-box">
+            <text class="time-label">开始</text>
+            <picker mode="date" value="{{startDate}}" bindchange="bindStartDateChange">
+              <view class="time-value-box">{{startDate}}</view>
+            </picker>
+          </view>
+          <view class="time-box">
+            <text class="time-label">结束</text>
+            <picker mode="date" value="{{endDate}}" bindchange="bindEndDateChange">
+              <view class="time-value-box">{{endDate}}</view>
+            </picker>
+          </view>
+        </view>
+        <view class="time-container">
+          <view class="time-box">
+            <text class="time-label">时间</text>
+            <picker mode="time" value="{{batchEventTime}}" bindchange="bindBatchEventTimeChange">
+              <view class="time-value-box">{{batchEventTime}}</view>
+            </picker>
+          </view>
+        </view>
+        <textarea class="event-desc" placeholder="添加描述（可选）" bindinput="inputDesc" value="{{eventDesc}}"></textarea>
+      </view>
+      <view class="add-event-btns">
+        <button class="btn cancel-btn" bindtap="cancelAdd">取消</button>
+        <button class="btn save-btn batch-save-btn" bindtap="saveBatchEvent">批量保存</button>
+      </view>
+    </view>
+  </view>
+</view> 
