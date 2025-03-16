@@ -55,7 +55,20 @@
 .login-card {
   width: 100%;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+
+.privacy-notice {
+  margin-bottom: 30rpx;
+  font-size: 26rpx;
+  color: #666;
+  text-align: center;
+}
+
+.privacy-link {
+  color: #07c160;
+  display: inline;
 }
 
 .wechat-login-btn {
@@ -87,4 +100,11 @@
   width: 44rpx;
   height: 44rpx;
   margin-right: 20rpx;
+}
+
+.login-alternative {
+  margin-top: 30rpx;
+  font-size: 26rpx;
+  color: #999;
+  text-decoration: underline;
 } 

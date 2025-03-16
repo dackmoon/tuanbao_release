@@ -50,5 +50,6 @@
   "sitemapLocation": "sitemap.json",
   "lazyCodeLoading": "requiredComponents",
   "usingComponents": {
-  }
+  },
+  "__usePrivacyCheck__": true
 }

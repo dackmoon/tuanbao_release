@@ -40,7 +40,9 @@
           <view class="event-content">
             <view class="event-title-row">
               <text class="event-title">{{item.title}}</text>
-              <text class="event-desc-inline" wx:if="{{item.description && item.description !== '无描述'}}">{{item.description}}</text>
+              <view class="event-desc-container auto-scroll" wx:if="{{item.description && item.description !== '无描述'}}">
+                <text class="event-desc">{{item.description}}</text>
+              </view>
             </view>
           </view>
           <view class="event-actions">

@@ -6,9 +6,16 @@
   </view>
   
   <view class="login-card">
-    <button class="wechat-login-btn" bindtap="getUserProfile">
+    <view class="privacy-notice">
+      <text class="privacy-text">登录即代表您已阅读并同意</text>
+      <text class="privacy-link" bindtap="showPrivacyPolicy">《用户隐私保护指引》</text>
+    </view>
+    
+    <button class="wechat-login-btn" open-type="getUserInfo" bindgetuserinfo="onGetUserInfo">
       <image class="wechat-icon" src="/assert/icon/wechat.png" mode="aspectFit"></image>
-      微信授权登录
+      微信一键登录
     </button>
+    
+    <view class="login-alternative" bindtap="cancelLogin">取消登录</view>
   </view>
 </view> 

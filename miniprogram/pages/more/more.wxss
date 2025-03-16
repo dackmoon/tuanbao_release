@@ -1,0 +1,148 @@
+/* pages/more/more.wxss */
+.container {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  background-color: #f9f9f9;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* 用户信息区域 */
+.user-info-section {
+  display: flex;
+  align-items: center;
+  padding: 50rpx 40rpx;
+  background-color: #ffffff;
+  margin-bottom: 0;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.03);
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.user-info-section::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 6rpx;
+  background: linear-gradient(to right, #07c160, #09bb07, #07c160);
+}
+
+/* 头像样式 */
+.avatar {
+  width: 130rpx;
+  height: 130rpx;
+  border-radius: 65rpx;
+  margin-right: 30rpx;
+  border: 4rpx solid rgba(7, 193, 96, 0.1);
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.nickname {
+  font-size: 38rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 12rpx;
+}
+
+.welcome-text {
+  font-size: 28rpx;
+  color: #888888;
+  line-height: 1.4;
+}
+
+/* 菜单列表 */
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rpx;
+  margin-bottom: 0;
+  padding: 0;
+  width: 100%;
+  background-color: #f0f0f0;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 30rpx 40rpx;
+  background-color: #ffffff;
+  border-radius: 0;
+  box-shadow: none;
+  transition: all 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.menu-item-hover {
+  transform: scale(0.98);
+  background-color: #fafafa;
+}
+
+/* 菜单图标文本 */
+.menu-icon {
+  width: 44rpx;
+  height: 44rpx;
+  margin-right: 24rpx;
+}
+
+.menu-text {
+  flex: 1;
+  font-size: 32rpx;
+  color: #333333;
+  font-weight: 500;
+}
+
+/* 箭头文本 */
+.arrow-icon {
+  width: 32rpx;
+  height: 32rpx;
+  opacity: 0.5;
+}
+
+/* 退出账号按钮样式 */
+.logout-item {
+  margin: 0;
+  background-color: #fff5f5;
+  border-top: 1rpx solid #f0f0f0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.logout-item-hover {
+  background-color: #fff0f0;
+  transform: scale(0.98);
+}
+
+.logout-text {
+  color: #ff4d4f;
+  font-weight: 500;
+}
+
+.logout-icon-text {
+  background-color: #ffeeee;
+  color: #ff4d4f;
+}
+
+/* 版本信息 */
+.version-info {
+  display: flex;
+  justify-content: center;
+  margin-top: 80rpx;
+  padding-bottom: 40rpx;
+}
+
+.version-text {
+  font-size: 24rpx;
+  color: #aaaaaa;
+  letter-spacing: 1rpx;
+}

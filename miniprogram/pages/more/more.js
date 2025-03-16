@@ -6,8 +6,7 @@ Page({
    */
   data: {
     userInfo: null,
-    isLoggedIn: false,
-    
+    isLoggedIn: false
   },
 
   /**
@@ -49,7 +48,8 @@ Page({
    * 页面相关事件处理函数--监听用户下拉动作
    */
   onPullDownRefresh() {
-
+    this.updateUserInfo()
+    wx.stopPullDownRefresh()
   },
 
   /**
@@ -66,13 +66,22 @@ Page({
 
   },
 
-  // 更新用户信息
+  // 更新本地用户信息
   updateUserInfo() {
-    const app = getApp()
+    // 从本地存储获取用户信息
+    const userInfo = wx.getStorageSync('userInfo') || null
+    const isLoggedIn = !!userInfo
+    
+    // 更新页面数据
     this.setData({
-      userInfo: app.globalData.userInfo,
-      isLoggedIn: app.globalData.isLoggedIn
+      userInfo: userInfo,
+      isLoggedIn: isLoggedIn
     })
+    
+    // 同步更新全局数据
+    const app = getApp()
+    app.globalData.userInfo = userInfo
+    app.globalData.isLoggedIn = isLoggedIn
   },
   
   // 菜单项点击
@@ -103,11 +112,13 @@ Page({
         if (res.confirm) {
           // 清除用户信息
           wx.removeStorageSync('userInfo')
+          wx.removeStorageSync('userId')
           
           // 更新全局数据
           const app = getApp()
           app.globalData.userInfo = null
           app.globalData.isLoggedIn = false
+          app.globalData.userId = null
           
           // 更新页面数据
           this.setData({

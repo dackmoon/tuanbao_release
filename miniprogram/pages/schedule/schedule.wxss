@@ -191,30 +191,63 @@ page {
 .event-title-row {
   display: flex;
   align-items: flex-end;
-  flex-wrap: wrap;
+  width: 100%;
+  overflow: hidden;
 }
 
 .event-title {
   font-size: 15px;
   color: #333;
   font-weight: 500;
-  margin-right: 8px;
   line-height: 1.2;
+  margin-right: 8px;
+  flex-shrink: 0;
 }
 
+/* 移除旧的内联描述样式 */
 .event-desc-inline {
-  font-size: 12px;
-  color: #999;
-  font-style: italic;
-  line-height: 1.2;
+  display: none;
+}
+
+/* 添加新的描述容器样式 */
+.event-desc-container {
+  flex: 1;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 2px;
+  position: relative;
+  max-width: 60%;
+}
+
+/* 自动滚动类 */
+.auto-scroll {
+  overflow: hidden;
+}
+
+.auto-scroll .event-desc {
+  animation: scrollText 8s linear infinite;
+  animation-delay: 1s;
+  position: relative;
+  padding-left: 100%; /* 确保文字从右侧开始 */
 }
 
 .event-desc {
   font-size: 12px;
   color: #999;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  display: inline-block;
+  font-style: normal;
+  line-height: 1.2;
+}
+
+/* 定义滚动动画 */
+@keyframes scrollText {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
 }
 
 .event-actions {

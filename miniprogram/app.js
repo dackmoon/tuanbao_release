@@ -44,17 +44,26 @@ App({
   // 检查登录状态的方法
   checkLoginStatus() {
     const userInfo = wx.getStorageSync('userInfo')
+    const userId = wx.getStorageSync('userId')
+    
     if (userInfo) {
       this.globalData.userInfo = userInfo
       this.globalData.isLoggedIn = true
+      console.log(this.globalData.userInfo)
+      
+      if (userId) {
+        this.globalData.userId = userId
+      }
     } else {
       this.globalData.isLoggedIn = false
+      this.globalData.userId = null
       // 不在这里直接跳转，而是在页面中根据需要判断
     }
   },
 
   globalData: {
     userInfo: null,
-    isLoggedIn: false
+    isLoggedIn: false,
+    userId: null
   }
 })
