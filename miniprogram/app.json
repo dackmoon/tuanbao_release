@@ -5,7 +5,9 @@
     "pages/record/record",
     "pages/more/more",
     "pages/logs/logs",
-    "pages/login/login"
+    "pages/login/login",
+    "pages/record/detail/detail",
+    "pages/record/edit/edit"
   ],
   "window": {
     "backgroundTextStyle":"light",

@@ -2,10 +2,10 @@
 <view class="container">
   <!-- 用户信息区域 -->
   <view class="user-info-section">
-    <image class="avatar" src="{{userInfo.avatarUrl || '/assert/icon/default-avatar.png'}}" mode="aspectFill"></image>
+    <image class="avatar" src="{{'/assert/icon/default-avatar.png'}}" mode="aspectFill"></image>
     <view class="user-details">
-      <text class="nickname">{{userInfo.nickName || '微信用户'}}</text>
-      <text class="welcome-text">欢迎使用团宝儿的家园</text>
+      <text class="nickname">{{'我是可爱的团团呀~'}}</text>
+      <text class="welcome-text">欢迎来到我的家园~~</text>
     </view>
   </view>
   

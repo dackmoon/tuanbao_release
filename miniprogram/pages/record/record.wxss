@@ -1,9 +1,575 @@
 /* pages/record/record.wxss */
 .record-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #f7f7f7;
+  position: relative;
+}
+
+/* 搜索框样式 */
+.search-container {
   padding: 20rpx;
+  background-color: #ffffff;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  background-color: #f5f5f5;
+  border-radius: 36rpx;
+  padding: 10rpx 20rpx;
+  height: 72rpx;
+}
+
+.search-icon {
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 16rpx;
+  opacity: 0.5;
+}
+
+.search-input {
+  flex: 1;
+  height: 72rpx;
+  font-size: 28rpx;
+}
+
+.search-btn {
+  font-size: 28rpx;
+  color: #07c160;
+  margin-left: 16rpx;
+  padding: 0 10rpx;
+}
+
+/* 发布按钮样式 */
+.publish-btn {
+  position: fixed;
+  right: 30rpx;
+  bottom: 100rpx;
+  width: 100rpx;
+  height: 100rpx;
+  background-color: #aecdf1;
+  border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background-color: #edf4ff;
+  box-shadow: 0 4rpx 16rpx rgba(32, 125, 187, 0.3);
+  z-index: 100;
+}
+
+.publish-icon {
+  width: 50rpx;
+  height: 50rpx;
+}
+
+/* 动态列表样式 */
+.moments-list {
+  flex: 1;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.moment-item {
+  margin-bottom: 20rpx;
+  background-color: #ffffff;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.03);
+}
+
+/* 动态头部样式 */
+.moment-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+}
+
+.user-info {
+  flex: 1;
+}
+
+.nickname {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #333333;
+  margin-bottom: 6rpx;
+}
+
+.time {
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.moment-actions {
+  padding: 10rpx;
+}
+
+.action-icon {
+  width: 40rpx;
+  height: 40rpx;
+  opacity: 0.6;
+}
+
+/* 动态内容样式 */
+.moment-content {
+  margin-bottom: 20rpx;
+}
+
+.content-text {
+  font-size: 28rpx;
+  color: #333333;
+  line-height: 1.6;
+  margin-bottom: 20rpx;
+  word-break: break-all;
+}
+
+/* 图片样式 */
+.image-container {
+  margin-top: 20rpx;
+}
+
+.image-grid-1 {
+  display: flex;
+}
+
+.image-grid-1 .moment-image {
+  width: 400rpx;
+  height: 400rpx;
+  border-radius: 8rpx;
+}
+
+.image-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10rpx;
+}
+
+.image-grid-2 .moment-image {
+  width: 100%;
+  height: 300rpx;
+  border-radius: 8rpx;
+}
+
+.image-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10rpx;
+}
+
+.image-grid-3 .moment-image {
+  width: 100%;
+  height: 200rpx;
+  border-radius: 8rpx;
+}
+
+/* 视频样式 */
+.video-container {
+  margin-top: 20rpx;
+}
+
+.moment-video {
+  width: 100%;
+  height: 400rpx;
+  border-radius: 8rpx;
+}
+
+/* 点赞和评论区域样式 */
+.moment-footer {
+  border-top: 1rpx solid #f0f0f0;
+  padding-top: 20rpx;
+}
+
+.moment-stats {
+  display: flex;
+  margin-bottom: 16rpx;
+}
+
+.like-btn, .comment-btn {
+  display: flex;
+  align-items: center;
+  margin-right: 40rpx;
+  padding: 6rpx 0;
+}
+
+.like-icon, .comment-icon {
+  width: 36rpx;
+  height: 36rpx;
+  margin-right: 8rpx;
+}
+
+.like-count, .comment-count {
+  font-size: 24rpx;
+  color: #666666;
+}
+
+.liked {
+  color: #07c160;
+}
+
+.liked .like-count {
+  color: #07c160;
+}
+
+/* 点赞列表样式 */
+.likes-list {
+  display: flex;
+  align-items: center;
+  background-color: #f9f9f9;
+  padding: 16rpx;
+  border-radius: 8rpx;
+  margin-bottom: 16rpx;
+}
+
+.like-list-icon {
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: 10rpx;
+}
+
+.like-list-text {
+  font-size: 24rpx;
+  color: #666666;
+}
+
+/* 评论列表预览样式 */
+.comments-preview {
+  background-color: #f9f9f9;
+  padding: 16rpx;
+  border-radius: 8rpx;
+}
+
+.comment-item {
+  margin-bottom: 10rpx;
+  font-size: 26rpx;
+  line-height: 1.5;
+}
+
+.comment-user {
+  color: #576b95;
+  font-weight: 500;
+}
+
+.comment-text {
+  color: #333333;
+}
+
+.view-more {
+  font-size: 24rpx;
+  color: #576b95;
+  margin-top: 10rpx;
+}
+
+/* 空状态样式 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 0;
+}
+
+.empty-icon {
+  width: 200rpx;
+  height: 200rpx;
+  margin-bottom: 30rpx;
+  opacity: 0.5;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999999;
+}
+
+/* 加载状态样式 */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30rpx 0;
+}
+
+.loading-spinner {
+  width: 60rpx;
+  height: 60rpx;
+  border: 4rpx solid #f3f3f3;
+  border-top: 4rpx solid #07c160;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20rpx;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 24rpx;
+  color: #999999;
+}
+
+/* 加载到底提示样式 */
+.load-all {
+  text-align: center;
+  padding: 30rpx 0;
+}
+
+.load-all-text {
+  font-size: 24rpx;
+  color: #999999;
+}
+
+/* 评论输入框样式 */
+.comment-input-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #ffffff;
+  padding: 20rpx;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
+  z-index: 100;
+}
+
+.comment-input {
+  flex: 1;
+  height: 72rpx;
+  background-color: #f5f5f5;
+  border-radius: 36rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+}
+
+.send-btn {
+  margin-left: 20rpx;
+  color: #07c160;
+  font-size: 28rpx;
+  padding: 10rpx 20rpx;
+}
+
+/* 发布动态弹窗样式 */
+.publish-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.publish-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.publish-content {
+  position: relative;
+  width: 90%;
+  max-height: 80vh;
+  background-color: #ffffff;
+  border-radius: 12rpx;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.publish-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.publish-title {
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #333333;
+}
+
+.close-btn {
+  font-size: 40rpx;
+  color: #999999;
+  padding: 10rpx;
+}
+
+.publish-body {
+  flex: 1;
+  padding: 30rpx;
+  overflow-y: auto;
+}
+
+.publish-textarea {
+  width: 100%;
+  min-height: 200rpx;
+  font-size: 28rpx;
+  line-height: 1.6;
+  padding: 0;
+  margin-bottom: 30rpx;
+}
+
+.media-preview {
+  margin-bottom: 30rpx;
+}
+
+.image-preview-list {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -10rpx;
+}
+
+.image-preview-item {
+  width: calc(33.33% - 20rpx);
+  height: 200rpx;
+  margin: 10rpx;
+  position: relative;
+}
+
+.preview-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 8rpx;
+}
+
+.delete-image, .delete-video {
+  position: absolute;
+  top: -16rpx;
+  right: -16rpx;
+  width: 40rpx;
+  height: 40rpx;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 28rpx;
+}
+
+.video-preview {
+  position: relative;
+  width: 100%;
+  height: 400rpx;
+  margin-bottom: 20rpx;
+}
+
+.preview-video {
+  width: 100%;
+  height: 100%;
+  border-radius: 8rpx;
+}
+
+.media-actions {
+  display: flex;
+  border-top: 1rpx solid #f0f0f0;
+  padding-top: 30rpx;
+}
+
+.media-btn {
+  display: flex;
+  align-items: center;
+  margin-right: 40rpx;
+}
+
+.media-icon {
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 10rpx;
+}
+
+.media-text {
+  font-size: 28rpx;
+  color: #666666;
+}
+
+.publish-footer {
+  padding: 20rpx 30rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.publish-submit-btn {
+  width: 100%;
+  height: 80rpx;
+  background-color: #07c160;
+  color: #ffffff;
+  font-size: 30rpx;
+  border-radius: 40rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.publish-submit-btn[disabled] {
+  background-color: #9be6b4;
+  color: #ffffff;
+}
+
+/* 身份选择器样式 */
+.identity-selector {
+  margin-bottom: 20rpx;
+  background-color: #f9f9f9;
+  padding: 15rpx;
+  border-radius: 12rpx;
+}
+
+.identity-row {
+  display: flex;
+  align-items: center;
+}
+
+.identity-title {
+  font-size: 28rpx;
+  color: #333333;
+  margin-right: 20rpx;
+  white-space: nowrap;
+}
+
+.identity-options {
+  display: flex;
+  flex: 1;
+}
+
+.identity-option {
+  display: flex;
+  align-items: center;
+  padding: 10rpx 15rpx;
+  border-radius: 8rpx;
+  margin-right: 15rpx;
+  transition: all 0.3s;
+}
+
+.identity-option.selected {
+  background-color: rgba(174, 205, 241, 0.3);
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.1);
+}
+
+.identity-icon {
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 8rpx;
+}
+
+.identity-name {
+  font-size: 26rpx;
+  color: #333333;
 }

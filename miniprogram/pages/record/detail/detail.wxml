@@ -1,0 +1,104 @@
+<!--pages/record/detail/detail.wxml-->
+<view class="detail-container">
+  <!-- 动态内容 -->
+  <view class="moment-card">
+    <!-- 用户信息 -->
+    <view class="moment-header">
+      <image class="avatar" src="{{moment.userInfo.avatarUrl}}" mode="aspectFill"></image>
+      <view class="user-info">
+        <text class="nickname">{{moment.userInfo.nickName}}</text>
+        <text class="time">{{moment.createTime}}</text>
+      </view>
+      <!-- 操作菜单 (对所有用户开放) -->
+      <view class="moment-actions" catchtap="showActionSheet">
+        <image class="action-icon" src="/assert/icon/more.png" mode="aspectFit"></image>
+      </view>
+    </view>
+    
+    <!-- 动态内容 -->
+    <view class="moment-content">
+      <text class="content-text">{{moment.content}}</text>
+      
+      <!-- 图片展示 -->
+      <view class="image-container" wx:if="{{moment.images && moment.images.length > 0}}">
+        <view class="image-grid-{{moment.images.length > 4 ? 3 : (moment.images.length > 1 ? 2 : 1)}}">
+          <image 
+            class="moment-image" 
+            wx:for="{{moment.images}}" 
+            wx:for-item="image" 
+            wx:key="index" 
+            src="{{image}}" 
+            mode="aspectFill"
+            catchtap="previewImage"
+            data-urls="{{moment.images}}"
+            data-current="{{image}}"
+          ></image>
+        </view>
+      </view>
+      
+      <!-- 视频展示 -->
+      <view class="video-container" wx:if="{{moment.video}}">
+        <video class="moment-video" src="{{moment.video}}" object-fit="cover" show-center-play-btn="true"></video>
+      </view>
+    </view>
+    
+    <!-- 点赞和评论区域 -->
+    <view class="moment-footer">
+      <view class="moment-stats">
+        <!-- 点赞按钮 -->
+        <view class="like-btn {{moment.isLiked ? 'liked' : ''}}" catchtap="toggleLike">
+          <image class="like-icon" src="{{moment.isLiked ? '/assert/icon/liked.png' : '/assert/icon/like.png'}}" mode="aspectFit"></image>
+          <text class="like-count">{{moment.likeCount || 0}}</text>
+        </view>
+        
+        <!-- 评论按钮 -->
+        <view class="comment-btn" catchtap="focusCommentInput">
+          <image class="comment-icon" src="/assert/icon/comment.png" mode="aspectFit"></image>
+          <text class="comment-count">{{moment.commentCount || 0}}</text>
+        </view>
+      </view>
+      
+      <!-- 点赞列表 -->
+      <view class="likes-list" wx:if="{{moment.likes && moment.likes.length > 0}}">
+        <image class="like-list-icon" src="/assert/icon/liked.png" mode="aspectFit"></image>
+        <text class="like-list-text">{{moment.likesText}}</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 评论列表 -->
+  <view class="comments-container">
+    <view class="comments-header">
+      <text class="comments-title">全部评论 ({{moment.commentCount || 0}})</text>
+    </view>
+    
+    <view class="comments-list" wx:if="{{moment.comments && moment.comments.length > 0}}">
+      <view class="comment-item" wx:for="{{moment.comments}}" wx:key="_id">
+        <image class="comment-avatar" src="{{item.userInfo.avatarUrl}}" mode="aspectFill"></image>
+        <view class="comment-content">
+          <view class="comment-info">
+            <text class="comment-nickname">{{item.userInfo.nickName}}</text>
+            <text class="comment-time">{{item.createTimeFormatted}}</text>
+          </view>
+          <text class="comment-text">{{item.content}}</text>
+          
+          <!-- 删除评论按钮 (仅显示给评论发布者或动态发布者) -->
+          <view class="delete-comment" wx:if="{{item.userId === userInfo.userId || moment.userId === userInfo.userId}}" catchtap="deleteComment" data-id="{{item._id}}">
+            <image class="delete-icon" src="/assert/icon/delete.png" mode="aspectFit"></image>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 空评论状态 -->
+    <view class="empty-comments" wx:if="{{!moment.comments || moment.comments.length === 0}}">
+      <text class="empty-comments-text">暂无评论，快来发表第一条评论吧~</text>
+    </view>
+  </view>
+  
+  <!-- 评论输入框 (固定在底部) -->
+  <view class="comment-input-container">
+    <input class="comment-input" placeholder="说点什么..." focus="{{commentFocus}}" confirm-type="send" bindconfirm="submitComment" value="{{commentContent}}" bindinput="onCommentInput"/>
+    <view class="send-btn" bindtap="submitComment">发送</view>
+  </view>
+</view> 

@@ -1,0 +1,42 @@
+<!--pages/record/edit/edit.wxml-->
+<view class="edit-container">
+  <view class="edit-header">
+    <text class="edit-title">编辑动态</text>
+  </view>
+  
+  <view class="edit-body">
+    <textarea class="edit-textarea" placeholder="分享你的想法..." bindinput="onContentInput" value="{{moment.content}}" maxlength="500" auto-height></textarea>
+    
+    <view class="media-preview">
+      <!-- 图片预览 -->
+      <view class="image-preview-list" wx:if="{{moment.images.length > 0}}">
+        <view class="image-preview-item" wx:for="{{moment.images}}" wx:key="index">
+          <image class="preview-image" src="{{item}}" mode="aspectFill"></image>
+          <view class="delete-image" catchtap="deleteImage" data-index="{{index}}">×</view>
+        </view>
+      </view>
+      
+      <!-- 视频预览 -->
+      <view class="video-preview" wx:if="{{moment.video}}">
+        <video class="preview-video" src="{{moment.video}}" object-fit="cover"></video>
+        <view class="delete-video" catchtap="deleteVideo">×</view>
+      </view>
+    </view>
+    
+    <view class="media-actions">
+      <view class="media-btn" bindtap="chooseImage" wx:if="{{!moment.video}}">
+        <image class="media-icon" src="/assert/icon/image.png" mode="aspectFit"></image>
+        <text class="media-text">图片</text>
+      </view>
+      <view class="media-btn" bindtap="chooseVideo" wx:if="{{moment.images.length === 0 && !moment.video}}">
+        <image class="media-icon" src="/assert/icon/video.png" mode="aspectFit"></image>
+        <text class="media-text">视频</text>
+      </view>
+    </view>
+  </view>
+  
+  <view class="edit-footer">
+    <button class="cancel-btn" bindtap="cancelEdit">取消</button>
+    <button class="save-btn" bindtap="saveEdit" disabled="{{!moment.content && moment.images.length === 0 && !moment.video}}">保存</button>
+  </view>
+</view> 
