@@ -29,7 +29,9 @@ Page({
         imageUrl: 'https://7072-prod-1gra11xn834ed9aa-1347862742.tcb.qcloud.la/static/images/3.jpg?sign=d5be03ca3e4a823838fc4b3bc233f855&t=1742006333', // 图片地址预留，稍后手动修改
         
       }
-    ]
+    ],
+    // 近期行程数据
+    upcomingSchedules: []
   },
   
   onLoad() {
@@ -40,6 +42,8 @@ Page({
   onShow() {
     // 每次显示页面时检查登录状态
     this.checkLoginStatus()
+    // 获取近期行程数据
+    this.getUpcomingSchedules()
   },
   
   // 检查登录状态
@@ -56,6 +60,86 @@ Page({
         hasUserInfo: true
       })
     }
+  },
+  
+  // 获取近期行程数据
+  getUpcomingSchedules() {
+    wx.showLoading({
+      title: '加载中...',
+    })
+    
+    // 调用云函数获取日程数据
+    wx.cloud.callFunction({
+      name: 'getSchedules',
+      data: {},
+      success: res => {
+        console.log('获取日程成功', res)
+        if (res.result && res.result.data) {
+          // 处理日程数据，只保留未来7天内的日程
+          const schedules = res.result.data || []
+          const upcomingSchedules = this.processSchedules(schedules)
+          
+          this.setData({
+            upcomingSchedules: upcomingSchedules
+          })
+        }
+      },
+      fail: err => {
+        console.error('获取日程失败', err)
+        wx.showToast({
+          title: '获取日程失败',
+          icon: 'none'
+        })
+      },
+      complete: () => {
+        wx.hideLoading()
+      }
+    })
+  },
+  
+  // 处理日程数据，筛选出未来7天内的日程并格式化
+  processSchedules(schedules) {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    
+    const nextWeek = new Date(today)
+    nextWeek.setDate(today.getDate() + 7)
+    
+    // 筛选未来7天内的日程
+    const filteredSchedules = schedules.filter(schedule => {
+      const scheduleDate = new Date(schedule.date)
+      return scheduleDate >= today && scheduleDate < nextWeek
+    })
+    
+    // 按日期排序
+    filteredSchedules.sort((a, b) => {
+      return new Date(a.date) - new Date(b.date)
+    })
+    
+    // 不再限制只显示3条
+    // const limitedSchedules = filteredSchedules.slice(0, 3)
+    
+    // 格式化日程数据
+    return filteredSchedules.map(schedule => {
+      const scheduleDate = new Date(schedule.date)
+      const isToday = this.isSameDay(scheduleDate, today)
+      
+      return {
+        id: schedule._id,
+        title: schedule.title,
+        time: schedule.eventTime || '全天',
+        day: scheduleDate.getDate(),
+        month: scheduleDate.getMonth() + 1,
+        isToday: isToday
+      }
+    })
+  },
+  
+  // 判断两个日期是否是同一天
+  isSameDay(date1, date2) {
+    return date1.getFullYear() === date2.getFullYear() &&
+           date1.getMonth() === date2.getMonth() &&
+           date1.getDate() === date2.getDate()
   },
   
   // 导航到指定页面

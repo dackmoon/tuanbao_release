@@ -1,0 +1,15 @@
+<view class="modal" wx:if="{{show}}">
+  <view class="modal-mask"></view>
+  <view class="modal-container">
+    <view class="modal-header">
+      <text class="modal-title">安装云开发扩展</text>
+    </view>
+    <view class="modal-body">
+      <text class="modal-message">此功能需要安装云开发扩展能力，是否前往安装？</text>
+    </view>
+    <view class="modal-footer">
+      <button class="modal-btn modal-btn-cancel" bindtap="onCancel">取消</button>
+      <button class="modal-btn modal-btn-confirm" bindtap="onConfirm">确定</button>
+    </view>
+  </view>
+</view> 

@@ -7,9 +7,7 @@ Page({
       avatarUrl: defaultAvatarUrl,
       nickName: '',
     },
-    hasUserInfo: false,
-    canIUseGetUserProfile: wx.canIUse('getUserProfile'),
-    canIUseNicknameComp: wx.canIUse('input.type.nickname')
+    isEnlarged: false
   },
   
   onLoad() {
@@ -20,64 +18,59 @@ Page({
     }
   },
   
-  // 获取微信用户信息
+  // 切换logo大小
+  toggleLogoSize() {
+    this.setData({
+      isEnlarged: !this.data.isEnlarged
+    })
+  },
+  
+  // 获取微信用户信息并登录
   getUserProfile() {
+    wx.showLoading({
+      title: '授权中...',
+    })
+    
     wx.getUserProfile({
       desc: '用于完善用户资料', // 声明获取用户个人信息后的用途
       success: (res) => {
-        // 简化日志输出，避免复杂对象可能导致的问题
         console.log('获取用户信息成功')
+        
         // 更新用户信息
-        this.setData({
-          "userInfo.avatarUrl": res.userInfo.avatarUrl,
-          "userInfo.nickName": res.userInfo.nickName,
-          hasUserInfo: true
+        const userInfo = {
+          avatarUrl: res.userInfo.avatarUrl,
+          nickName: res.userInfo.nickName
+        }
+        
+        // 保存用户信息
+        wx.setStorageSync('userInfo', userInfo)
+        
+        // 更新全局数据
+        const app = getApp()
+        app.globalData.userInfo = userInfo
+        app.globalData.isLoggedIn = true
+        
+        wx.hideLoading()
+        wx.showToast({
+          title: '登录成功',
+          icon: 'success',
+          duration: 1500
         })
+        
+        // 延迟返回，让用户看到成功提示
+        setTimeout(() => {
+          this.navigateBack()
+        }, 1500)
       },
       fail: (err) => {
-        // 简化错误日志
-        console.log('获取用户信息失败')
+        console.log('获取用户信息失败', err)
+        wx.hideLoading()
         wx.showToast({
-          title: '获取用户信息失败',
+          title: '授权失败',
           icon: 'none'
         })
       }
     })
-  },
-  
-  onChooseAvatar(e) {
-    // 直接调用获取用户信息接口
-    this.getUserProfile()
-  },
-  
-  onInputChange(e) {
-    const nickName = e.detail.value
-    const { avatarUrl } = this.data.userInfo
-    this.setData({
-      "userInfo.nickName": nickName,
-      hasUserInfo: nickName && avatarUrl && avatarUrl !== defaultAvatarUrl,
-    })
-  },
-  
-  login() {
-    if (!this.data.hasUserInfo) {
-      wx.showToast({
-        title: '请设置头像和昵称',
-        icon: 'none'
-      })
-      return
-    }
-    
-    // 保存用户信息
-    wx.setStorageSync('userInfo', this.data.userInfo)
-    
-    // 更新全局数据
-    const app = getApp()
-    app.globalData.userInfo = this.data.userInfo
-    app.globalData.isLoggedIn = true
-    
-    // 返回上一页或首页
-    this.navigateBack()
   },
   
   navigateBack() {

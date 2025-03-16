@@ -81,3 +81,26 @@
   </view>
 </view>
 
+<!-- 近期行程提醒 -->
+<view class="upcoming-schedule-container" wx:if="{{upcomingSchedules.length > 0}}">
+  <view class="upcoming-header">
+    <text class="upcoming-title">近期行程提醒</text>
+    <navigator url="/pages/schedule/schedule" open-type="switchTab" class="view-more">查看更多</navigator>
+  </view>
+  <view class="upcoming-list">
+    <view class="upcoming-item" wx:for="{{upcomingSchedules}}" wx:key="id">
+      <view class="upcoming-date">
+        <text class="date-day">{{item.day}}</text>
+        <text class="date-month">{{item.month}}月</text>
+      </view>
+      <view class="upcoming-content">
+        <view class="upcoming-title">{{item.title}}</view>
+        <view class="upcoming-time">{{item.time}}</view>
+      </view>
+      <view class="upcoming-status {{item.isToday ? 'today' : ''}}">
+        {{item.isToday ? '今日' : '即将到来'}}
+      </view>
+    </view>
+  </view>
+</view>
+

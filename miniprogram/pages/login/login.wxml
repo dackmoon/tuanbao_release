@@ -1,23 +1,14 @@
 <!--login.wxml-->
 <view class="container">
   <view class="login-header">
-    <image class="logo" src="/assert/icon/logo.png" mode="aspectFit"></image>
+    <image class="logo {{isEnlarged ? 'enlarged' : ''}}" src="/assert/icon/logo.png" mode="aspectFit" bindtap="toggleLogoSize"></image>
     <view class="title">团宝儿的家园</view>
-    <view class="subtitle">点击头像获取微信授权信息</view>
   </view>
   
-  <view class="login-form">
-    <button class="avatar-wrapper" bindtap="getUserProfile">
-      <image class="avatar" src="{{userInfo.avatarUrl}}"></image>
-      <view class="avatar-hint" wx:if="{{!hasUserInfo}}">点击授权</view>
+  <view class="login-card">
+    <button class="wechat-login-btn" bindtap="getUserProfile">
+      <image class="wechat-icon" src="/assert/icon/wechat.png" mode="aspectFit"></image>
+      微信授权登录
     </button>
-    <view class="nickname-wrapper">
-      <view class="nickname-label">昵称</view>
-      <input class="nickname-input" placeholder="请输入昵称" bindinput="onInputChange" value="{{userInfo.nickName}}" />
-    </view>
-  </view>
-  
-  <view class="login-actions">
-    <button class="login-btn {{hasUserInfo ? '' : 'disabled'}}" bindtap="login">登录</button>
   </view>
 </view> 

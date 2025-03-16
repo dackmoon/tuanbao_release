@@ -1,23 +1,25 @@
 page {
   background-color: #d6f3ff; /* 浅蓝色背景 */
   min-height: 100vh;
+  padding: 0; /* 移除所有内边距 */
+  box-sizing: border-box;
 }
 
 /* 轮播图样式 */
 .swiper-container {
-  width: calc(100% - 10rpx); /* 减去左右两边的边距 */
+  width: 100%; /* 宽度铺满屏幕 */
   height: 350rpx;
   position: relative;
   overflow: hidden;
-  border-radius: 16rpx;
-  box-shadow: 0 8rpx 20rpx rgba(0, 0, 0, 0.08);
-  margin: 0 auto 0; /* 修改为上0 左右auto 下0 */
+  border-radius: 0; /* 移除圆角 */
+  box-shadow: none; /* 移除阴影 */
+  margin: 0; /* 移除所有外边距 */
 }
 
 .swiper {
   width: 100%;
   height: 100%;
-  border-radius: 16rpx;
+  border-radius: 0;
   overflow: hidden;
 }
 
@@ -30,7 +32,7 @@ page {
 
 /* 覆盖 Vant 默认样式 */
 .van-swipe {
-  border-radius: 16rpx;
+  border-radius: 0;
   overflow: hidden;
 }
 
@@ -75,18 +77,20 @@ page {
 
 /* 导航栏样式 */
 .nav-container {
-  width: calc(100% - 40rpx);
-  margin: 0 auto 30rpx; /* 修改上边距为0，让导航栏贴着轮播图 */
+  width: 100%; /* 宽度铺满屏幕 */
+  margin: 0; /* 移除所有外边距 */
   background-color: #ffffff;
-  border-radius: 16rpx;
+  border-radius: 0; /* 移除圆角 */
   box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
-  padding: 20rpx 10rpx;
+  padding: 30rpx 0; /* 增加上下内边距，减少左右内边距 */
+  border-bottom: 1rpx solid #f0f0f0; /* 添加底部边框作为分隔线 */
 }
 
 .nav-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 20rpx;
+  margin-bottom: 30rpx;
+  padding: 0 20rpx; /* 添加左右内边距 */
 }
 
 .nav-row:last-child {
@@ -122,4 +126,121 @@ page {
   font-size: 24rpx;
   color: #333333;
   margin-top: 6rpx;
+}
+
+/* 近期行程提醒样式 */
+.upcoming-schedule-container {
+  width: 100%; /* 宽度铺满屏幕 */
+  margin: 0; /* 移除所有外边距 */
+  background-color: #ffffff;
+  border-radius: 0; /* 移除圆角 */
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+  padding: 20rpx 0; /* 移除左右内边距 */
+  overflow: hidden;
+  height: 400rpx; /* 固定容器高度 */
+  display: flex;
+  flex-direction: column;
+}
+
+.upcoming-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10rpx 30rpx 20rpx; /* 增加左右内边距 */
+  border-bottom: 1rpx solid #f0f0f0;
+  flex-shrink: 0; /* 防止头部被压缩 */
+}
+
+.upcoming-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333333;
+}
+
+.view-more {
+  font-size: 26rpx;
+  color: #1296db;
+}
+
+.upcoming-list {
+  padding: 10rpx 0;
+  flex: 1; /* 列表占据剩余空间 */
+  overflow-y: auto; /* 添加垂直滚动 */
+}
+
+.upcoming-item {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 30rpx; /* 增加左右内边距 */
+  border-bottom: 1rpx solid #f5f5f5;
+  height: 80rpx; /* 减小每个项目的高度 */
+}
+
+.upcoming-item:last-child {
+  border-bottom: none;
+}
+
+.upcoming-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 80rpx; /* 减小日期区域宽度 */
+  height: 80rpx; /* 减小日期区域高度 */
+  background-color: #f0f8ff;
+  border-radius: 10rpx;
+  margin-right: 16rpx;
+  flex-shrink: 0; /* 防止日期区域被压缩 */
+}
+
+.date-day {
+  font-size: 30rpx; /* 减小日期字体 */
+  font-weight: bold;
+  color: #1296db;
+  line-height: 1;
+}
+
+.date-month {
+  font-size: 20rpx; /* 减小月份字体 */
+  color: #666666;
+  line-height: 1;
+  margin-top: 4rpx;
+}
+
+.upcoming-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.upcoming-content .upcoming-title {
+  font-size: 28rpx; /* 减小标题字体 */
+  font-weight: 500;
+  color: #333333;
+  margin-bottom: 4rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.upcoming-time {
+  font-size: 22rpx; /* 减小时间字体 */
+  color: #999999;
+}
+
+.upcoming-status {
+  font-size: 20rpx; /* 减小状态字体 */
+  color: #999999;
+  background-color: #f5f5f5;
+  padding: 4rpx 12rpx;
+  border-radius: 16rpx;
+  flex-shrink: 0; /* 防止状态区域被压缩 */
+  margin-left: 12rpx;
+}
+
+.upcoming-status.today {
+  color: #ffffff;
+  background-color: #ff6b6b;
 }
