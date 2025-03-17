@@ -11,10 +11,27 @@ exports.main = async (event, context) => {
   const openid = wxContext.OPENID
   
   // 获取用户信息
-  const { avatarUrl, nickName } = event
+  const { avatarUrl, nickName, userId } = event
   
   try {
-    // 查询用户是否已存在
+    // 如果提供了userId，直接更新该用户
+    if (userId) {
+      await db.collection('users').doc(userId).update({
+        data: {
+          avatarUrl: avatarUrl,
+          nickName: nickName,
+          updateTime: db.serverDate()
+        }
+      })
+      
+      return {
+        success: true,
+        isNewUser: false,
+        userId: userId
+      }
+    }
+    
+    // 如果没有提供userId，则通过openid查询
     const userResult = await db.collection('users').where({
       _openid: openid
     }).get()

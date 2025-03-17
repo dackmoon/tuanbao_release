@@ -9,8 +9,8 @@
         <text class="nickname">{{moment.userInfo.nickName}}</text>
         <text class="time">{{moment.createTime}}</text>
       </view>
-      <!-- 操作菜单 (对所有用户开放) -->
-      <view class="moment-actions" catchtap="showActionSheet">
+      <!-- 操作菜单 (仅显示给发布者) -->
+      <view class="moment-actions" wx:if="{{moment.userId === userInfo.userId}}" catchtap="showActionSheet">
         <image class="action-icon" src="/assert/icon/more.png" mode="aspectFit"></image>
       </view>
     </view>

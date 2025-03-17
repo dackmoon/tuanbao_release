@@ -13,7 +13,7 @@
     
     <button class="wechat-login-btn" open-type="getUserInfo" bindgetuserinfo="onGetUserInfo">
       <image class="wechat-icon" src="/assert/icon/wechat.png" mode="aspectFit"></image>
-      微信一键登录
+      <text class="login-btn-text">微信一键登录</text>
     </button>
     
     <view class="login-alternative" bindtap="cancelLogin">取消登录</view>

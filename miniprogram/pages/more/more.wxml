@@ -1,11 +1,11 @@
 <!--pages/more/more.wxml-->
 <view class="container">
   <!-- 用户信息区域 -->
-  <view class="user-info-section">
-    <image class="avatar" src="{{'/assert/icon/default-avatar.png'}}" mode="aspectFill"></image>
+  <view class="user-info-section" bindtap="handleUserInfoClick">
+    <image class="avatar" src="{{userInfo.avatarUrl || '/assert/icon/default-avatar.png'}}" mode="aspectFill"></image>
     <view class="user-details">
-      <text class="nickname">{{'我是可爱的团团呀~'}}</text>
-      <text class="welcome-text">欢迎来到我的家园~~</text>
+      <text class="nickname">{{userInfo.nickName || '未登录'}}</text>
+      <text class="welcome-text">欢迎来到团宝儿的家园~~</text>
     </view>
   </view>
   
@@ -36,5 +36,37 @@
   <!-- 版本信息 -->
   <view class="version-info">
     <text class="version-text">版本 1.0.0</text>
+  </view>
+  
+  <!-- 个人资料修改弹窗 -->
+  <view class="profile-modal" wx:if="{{showProfileModal}}">
+    <view class="profile-mask" bindtap="hideProfileModal"></view>
+    <view class="profile-content">
+      <view class="profile-header">
+        <text class="profile-title">修改个人资料</text>
+        <view class="close-btn" bindtap="hideProfileModal">×</view>
+      </view>
+      
+      <view class="profile-body">
+        <!-- 头像选择 -->
+        <view class="avatar-section">
+          <view class="avatar-wrapper" bindtap="chooseImage">
+            <image class="modal-avatar" src="{{tempUserInfo.avatarUrl}}"></image>
+            <view class="avatar-hint">点击修改头像</view>
+          </view>
+        </view>
+        
+        <!-- 昵称输入 -->
+        <view class="nickname-section">
+          <text class="section-title">昵称</text>
+          <input class="nickname-input" placeholder="请输入昵称" bindinput="onInputNickname" value="{{tempUserInfo.nickName}}" />
+        </view>
+      </view>
+      
+      <view class="profile-footer">
+        <button class="cancel-btn" bindtap="hideProfileModal">取消</button>
+        <button class="save-btn" bindtap="saveUserProfile" disabled="{{!tempUserInfo.nickName || !tempUserInfo.avatarUrl}}">保存</button>
+      </view>
+    </view>
   </view>
 </view>

@@ -14,7 +14,7 @@
   </view>
   
   <!-- 动态列表 -->
-  <scroll-view class="moments-list" scroll-y="true" bindscrolltolower="loadMoreMoments" refresher-enabled="true" refresher-triggered="{{isRefreshing}}" bindrefresherrefresh="onRefresh">
+  <scroll-view class="moments-list" scroll-y="true" bindscrolltolower="loadMoreMoments" refresher-enabled="true" refresher-triggered="{{isRefreshing}}" bindrefresherrefresh="refreshMoments">
     <block wx:if="{{moments.length > 0}}">
       <view class="moment-item" wx:for="{{moments}}" wx:key="_id">
         <!-- 用户信息 -->
@@ -24,7 +24,7 @@
             <text class="nickname">{{item.userInfo.nickName}}</text>
             <text class="time">{{item.createTime}}</text>
           </view>
-          <!-- 操作菜单 (对所有用户开放) -->
+          <!-- 操作菜单 (对所有用户显示) -->
           <view class="moment-actions" catchtap="showActionSheet" data-id="{{item._id}}">
             <image class="action-icon" src="/assert/icon/more.png" mode="aspectFit"></image>
           </view>
@@ -127,27 +127,6 @@
       </view>
       
       <view class="publish-body">
-        <!-- 身份选择 -->
-        <view class="identity-selector">
-          <view class="identity-row">
-            <text class="identity-title">选择身份：</text>
-            <view class="identity-options">
-              <view class="identity-option {{newMoment.identity === 'baby' ? 'selected' : ''}}" bindtap="selectIdentity" data-identity="baby">
-                <image class="identity-icon" src="/assert/icon/baby.png" mode="aspectFit"></image>
-                <text class="identity-name">宝宝</text>
-              </view>
-              <view class="identity-option {{newMoment.identity === 'parent' ? 'selected' : ''}}" bindtap="selectIdentity" data-identity="parent">
-                <image class="identity-icon" src="/assert/icon/parent.png" mode="aspectFit"></image>
-                <text class="identity-name">父母</text>
-              </view>
-              <view class="identity-option {{newMoment.identity === 'family' ? 'selected' : ''}}" bindtap="selectIdentity" data-identity="family">
-                <image class="identity-icon" src="/assert/icon/family.png" mode="aspectFit"></image>
-                <text class="identity-name">家人</text>
-              </view>
-            </view>
-          </view>
-        </view>
-        
         <textarea class="publish-textarea" placeholder="分享你的想法..." bindinput="onContentInput" value="{{newMoment.content}}" maxlength="500" auto-height></textarea>
         
         <view class="media-preview">
@@ -179,7 +158,7 @@
       </view>
       
       <view class="publish-footer">
-        <button class="publish-submit-btn" bindtap="publishMoment" disabled="{{!newMoment.content && newMoment.images.length === 0 && !newMoment.video || !newMoment.identity}}">发布</button>
+        <button class="publish-submit-btn" bindtap="publishMoment" disabled="{{!newMoment.content && newMoment.images.length === 0 && !newMoment.video}}">发布</button>
       </view>
     </view>
   </view>

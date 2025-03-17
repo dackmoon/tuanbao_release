@@ -19,6 +19,8 @@
   position: relative;
   width: 100%;
   box-sizing: border-box;
+  transition: all 0.3s ease;
+  position: relative;
 }
 
 .user-info-section::after {
@@ -29,6 +31,24 @@
   width: 100%;
   height: 6rpx;
   background: linear-gradient(to right, #07c160, #09bb07, #07c160);
+}
+
+.user-info-section:active {
+  background-color: #f5f5f5;
+}
+
+/* 添加右箭头指示可点击 */
+.user-info-section::before {
+  content: '';
+  position: absolute;
+  right: 40rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16rpx;
+  height: 16rpx;
+  border-top: 4rpx solid #ccc;
+  border-right: 4rpx solid #ccc;
+  transform: translateY(-50%) rotate(45deg);
 }
 
 /* 头像样式 */
@@ -145,4 +165,161 @@
   font-size: 24rpx;
   color: #aaaaaa;
   letter-spacing: 1rpx;
+}
+
+/* 个人资料修改弹窗 */
+.profile-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.profile-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.profile-content {
+  position: relative;
+  width: 90%;
+  background-color: #ffffff;
+  border-radius: 12rpx;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  z-index: 1001;
+}
+
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.profile-title {
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #333333;
+}
+
+.close-btn {
+  font-size: 40rpx;
+  color: #999999;
+  padding: 10rpx;
+}
+
+.profile-body {
+  padding: 30rpx;
+}
+
+/* 头像选择样式 */
+.avatar-section {
+  margin-bottom: 40rpx;
+  display: flex;
+  justify-content: center;
+}
+
+.avatar-wrapper {
+  background-color: transparent;
+  padding: 0;
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 80rpx;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-wrapper::after {
+  border: none;
+}
+
+.modal-avatar {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 80rpx;
+  border: 2rpx solid #f0f0f0;
+}
+
+.avatar-hint {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-size: 20rpx;
+  text-align: center;
+  padding: 6rpx 0;
+}
+
+/* 昵称输入样式 */
+.nickname-section {
+  margin-bottom: 30rpx;
+}
+
+.section-title {
+  font-size: 28rpx;
+  color: #333333;
+  margin-bottom: 16rpx;
+  display: block;
+}
+
+.nickname-input {
+  width: 100%;
+  height: 80rpx;
+  background-color: #f5f5f5;
+  border-radius: 8rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+  color: #333333;
+  box-sizing: border-box;
+  border: 1rpx solid #e0e0e0;
+}
+
+.profile-footer {
+  display: flex;
+  padding: 20rpx 30rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.cancel-btn, .save-btn {
+  flex: 1;
+  height: 80rpx;
+  border-radius: 40rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 28rpx;
+  margin: 0 10rpx;
+}
+
+.cancel-btn {
+  background-color: #f5f5f5;
+  color: #666666;
+}
+
+.save-btn {
+  background-color: #07c160;
+  color: #ffffff;
+}
+
+.save-btn[disabled] {
+  background-color: #9be6b4;
+  color: #ffffff;
 }

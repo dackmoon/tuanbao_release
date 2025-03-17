@@ -85,6 +85,9 @@
   transition: all 0.3s ease;
   box-shadow: 0 6rpx 16rpx rgba(7, 193, 96, 0.3);
   border: none;
+  white-space: nowrap;
+  padding: 0 30rpx;
+  line-height: 96rpx;
 }
 
 .wechat-login-btn::after {
@@ -100,6 +103,12 @@
   width: 44rpx;
   height: 44rpx;
   margin-right: 20rpx;
+  flex-shrink: 0;
+}
+
+.login-btn-text {
+  white-space: nowrap;
+  display: inline-block;
 }
 
 .login-alternative {

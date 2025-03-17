@@ -22,22 +22,7 @@ Page({
     newMoment: {
       content: '',
       images: [],
-      video: '',
-      identity: ''
-    },
-    identities: {
-      baby: {
-        nickName: '团宝宝',
-        avatarUrl: '/assert/icon/baby_avatar.png'
-      },
-      parent: {
-        nickName: '团爸爸/团妈妈',
-        avatarUrl: '/assert/icon/parent_avatar.png'
-      },
-      family: {
-        nickName: '团家人',
-        avatarUrl: '/assert/icon/family_avatar.png'
-      }
+      video: ''
     }
   },
 
@@ -395,8 +380,7 @@ Page({
       newMoment: {
         content: '',
         images: [],
-        video: '',
-        identity: ''
+        video: ''
       }
     });
   },
@@ -567,27 +551,11 @@ Page({
     });
   },
 
-  // 选择身份
-  selectIdentity(e) {
-    const identity = e.currentTarget.dataset.identity;
-    this.setData({
-      'newMoment.identity': identity
-    });
-  },
-
   // 发布动态
   publishMoment() {
     if (!this.data.newMoment.content && this.data.newMoment.images.length === 0 && !this.data.newMoment.video) {
       wx.showToast({
         title: '请输入内容或上传图片/视频',
-        icon: 'none'
-      });
-      return;
-    }
-    
-    if (!this.data.newMoment.identity) {
-      wx.showToast({
-        title: '请选择身份',
         icon: 'none'
       });
       return;
@@ -599,7 +567,6 @@ Page({
     });
     
     const db = wx.cloud.database();
-    const selectedIdentity = this.data.identities[this.data.newMoment.identity];
     
     // 创建动态数据
     const momentData = {
@@ -607,12 +574,7 @@ Page({
       images: this.data.newMoment.images,
       video: this.data.newMoment.video,
       userId: this.data.userId,
-      identity: this.data.newMoment.identity,
       userInfo: {
-        nickName: selectedIdentity.nickName,
-        avatarUrl: selectedIdentity.avatarUrl
-      },
-      realUserInfo: {
         nickName: this.data.userInfo.nickName,
         avatarUrl: this.data.userInfo.avatarUrl
       },
@@ -864,33 +826,18 @@ Page({
   showActionSheet(e) {
     const momentId = e.currentTarget.dataset.id;
     
-    // 找到当前动态
-    const moment = this.data.moments.find(item => item._id === momentId);
-    
-    // 判断是否为发布者
-    const isPublisher = moment && moment.userId === this.data.userId;
-    
-    // 根据是否为发布者显示不同的操作选项
-    const itemList = isPublisher ? ['编辑', '删除'] : ['删除'];
+    // 所有用户都显示编辑和删除选项
+    const itemList = ['编辑', '删除'];
     
     wx.showActionSheet({
       itemList: itemList,
       success: res => {
-        if (isPublisher) {
-          // 发布者的操作
-          if (res.tapIndex === 0) {
-            // 编辑动态
-            this.navigateToEdit(momentId);
-          } else if (res.tapIndex === 1) {
-            // 删除动态
-            this.deleteMoment(momentId);
-          }
-        } else {
-          // 非发布者只能删除
-          if (res.tapIndex === 0) {
-            // 删除动态
-            this.deleteMoment(momentId);
-          }
+        if (res.tapIndex === 0) {
+          // 编辑动态
+          this.navigateToEdit(momentId);
+        } else if (res.tapIndex === 1) {
+          // 删除动态
+          this.deleteMoment(momentId);
         }
       }
     });

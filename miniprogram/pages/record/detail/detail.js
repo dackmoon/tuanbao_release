@@ -457,30 +457,15 @@ Page({
 
   // 显示操作菜单
   showActionSheet() {
-    // 判断是否为发布者
-    const isPublisher = this.data.moment && this.data.moment.userId === this.data.userId;
-    
-    // 根据是否为发布者显示不同的操作选项
-    const itemList = isPublisher ? ['编辑', '删除'] : ['删除'];
-    
     wx.showActionSheet({
-      itemList: itemList,
+      itemList: ['编辑', '删除'],
       success: res => {
-        if (isPublisher) {
-          // 发布者的操作
-          if (res.tapIndex === 0) {
-            // 编辑动态
-            this.navigateToEdit();
-          } else if (res.tapIndex === 1) {
-            // 删除动态
-            this.deleteMoment();
-          }
-        } else {
-          // 非发布者只能删除
-          if (res.tapIndex === 0) {
-            // 删除动态
-            this.deleteMoment();
-          }
+        if (res.tapIndex === 0) {
+          // 编辑动态
+          this.navigateToEdit();
+        } else if (res.tapIndex === 1) {
+          // 删除动态
+          this.deleteMoment();
         }
       }
     });

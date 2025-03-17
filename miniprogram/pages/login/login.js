@@ -45,69 +45,123 @@ Page({
         title: '登录中...',
       })
       
-      // 更新用户信息
-      const userInfo = {
+      // 获取微信用户信息
+      const wxUserInfo = {
         avatarUrl: e.detail.userInfo.avatarUrl || defaultAvatarUrl,
         nickName: e.detail.userInfo.nickName || '微信用户'
       }
       
-      // 保存用户信息到本地
-      wx.setStorageSync('userInfo', userInfo)
-      
-      // 更新全局数据
-      const app = getApp()
-      app.globalData.userInfo = userInfo
-      app.globalData.isLoggedIn = true
-      
-      // 调用云函数保存用户信息到云数据库
+      // 调用云函数获取用户信息
       wx.cloud.callFunction({
-        name: 'saveUserInfo',
+        name: 'getUserInfo',
         data: {
-          avatarUrl: userInfo.avatarUrl,
-          nickName: userInfo.nickName
+          // 不传递任何参数，云函数会通过openid查询用户
         },
         success: res => {
-          console.log('保存用户信息成功:', res)
-          // 保存用户ID到本地
-          if (res.result && res.result.userId) {
-            wx.setStorageSync('userId', res.result.userId)
-            app.globalData.userId = res.result.userId
+          console.log('获取用户信息成功:', res)
+          
+          let userInfo = wxUserInfo;
+          let isNewUser = true;
+          let userId = null;
+          
+          // 如果云数据库中有用户信息，则使用数据库中的信息
+          if (res.result && res.result.success && res.result.userInfo) {
+            userInfo = res.result.userInfo;
+            isNewUser = false;
+            userId = res.result.userInfo._id;
           }
           
-          wx.hideLoading()
-          wx.showToast({
-            title: '登录成功',
-            icon: 'success',
-            duration: 1500
-          })
+          // 保存用户信息到本地
+          wx.setStorageSync('userInfo', userInfo);
+          if (userId) {
+            wx.setStorageSync('userId', userId);
+          }
           
-          // 延迟返回，让用户看到成功提示
-          setTimeout(() => {
-            this.navigateBack()
-          }, 1500)
+          // 更新全局数据
+          const app = getApp();
+          app.globalData.userInfo = userInfo;
+          app.globalData.isLoggedIn = true;
+          if (userId) {
+            app.globalData.userId = userId;
+          }
+          
+          // 如果是新用户，则保存微信的用户信息到云数据库
+          if (isNewUser) {
+            this.saveUserInfoToCloud(wxUserInfo);
+          } else {
+            wx.hideLoading();
+            wx.showToast({
+              title: '登录成功',
+              icon: 'success',
+              duration: 1500
+            });
+            
+            // 延迟返回，让用户看到成功提示
+            setTimeout(() => {
+              this.navigateBack();
+            }, 1500);
+          }
         },
         fail: err => {
-          console.error('保存用户信息失败:', err)
-          wx.hideLoading()
-          wx.showToast({
-            title: '登录成功',
-            icon: 'success',
-            duration: 1500
-          })
-          
-          // 即使云函数调用失败，也允许用户登录
-          setTimeout(() => {
-            this.navigateBack()
-          }, 1500)
+          console.error('获取用户信息失败:', err);
+          // 获取失败时，使用微信的用户信息
+          this.saveUserInfoToCloud(wxUserInfo);
         }
-      })
+      });
     } else {
       // 用户拒绝授权
       wx.showToast({
         title: '您已拒绝授权',
         icon: 'none'
-      })
+      });
     }
+  },
+  
+  // 保存用户信息到云数据库
+  saveUserInfoToCloud(userInfo) {
+    // 调用云函数保存用户信息到云数据库
+    wx.cloud.callFunction({
+      name: 'saveUserInfo',
+      data: {
+        avatarUrl: userInfo.avatarUrl,
+        nickName: userInfo.nickName
+      },
+      success: res => {
+        console.log('保存用户信息成功:', res);
+        // 保存用户ID到本地
+        if (res.result && res.result.userId) {
+          wx.setStorageSync('userId', res.result.userId);
+          const app = getApp();
+          app.globalData.userId = res.result.userId;
+        }
+        
+        wx.hideLoading();
+        wx.showToast({
+          title: '登录成功',
+          icon: 'success',
+          duration: 1500
+        });
+        
+        // 延迟返回，让用户看到成功提示
+        setTimeout(() => {
+          this.navigateBack();
+        }, 1500);
+      },
+      fail: err => {
+        console.error('保存用户信息失败:', err);
+        wx.hideLoading();
+        wx.showToast({
+          title: '登录成功',
+          icon: 'success',
+          duration: 1500
+        });
+        
+        // 即使云函数调用失败，也允许用户登录
+        setTimeout(() => {
+          this.navigateBack();
+        }, 1500);
+      }
+    });
   },
   
   // 取消登录，关闭小程序

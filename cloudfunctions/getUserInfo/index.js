@@ -3,6 +3,7 @@ const cloud = require('wx-server-sdk')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
+const _ = db.command
 
 // 云函数入口函数
 exports.main = async (event, context) => {
@@ -10,13 +11,13 @@ exports.main = async (event, context) => {
   const openid = wxContext.OPENID
   
   try {
-    // 查询用户信息
+    // 通过openid查询用户
     const userResult = await db.collection('users').where({
       _openid: openid
     }).get()
     
+    // 如果用户存在，返回用户信息
     if (userResult.data.length > 0) {
-      // 用户存在，返回用户信息
       return {
         success: true,
         userInfo: userResult.data[0]
