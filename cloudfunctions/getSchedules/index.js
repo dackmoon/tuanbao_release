@@ -1,92 +1,60 @@
 // 云函数入口文件
 const cloud = require('wx-server-sdk')
 
-cloud.init({
-  env: cloud.DYNAMIC_CURRENT_ENV
-})
-
+cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
+const _ = db.command
 
 // 云函数入口函数
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
-  const userId = wxContext.OPENID
+  const openid = wxContext.OPENID
+
+  // 获取年月参数，如果没有提供则获取当月
+  const { year, month } = event
   
   try {
-    // 如果提供了日期，则查询指定日期的日程
-    if (event.date) {
-      const result = await db.collection('schedules')
-        .where({
-          userId: userId,
-          date: event.date
-        })
-        .orderBy('eventTime', 'asc')
-        .get()
+    let query = {}
+    
+    // 如果提供了年份和月份，则构建查询条件
+    if (year && month) {
+      const startDate = `${year}-${String(month).padStart(2, '0')}-01`
+      let endMonth = month + 1
+      let endYear = year
       
-      return {
-        success: true,
-        data: result.data
+      if (month === 12) {
+        endMonth = 1
+        endYear = year + 1
       }
-    } 
-    // 如果提供了月份，则查询整个月的日程
-    else if (event.year && event.month) {
-      const year = event.year
-      const month = event.month.toString().padStart(2, '0')
       
-      // 构建日期范围查询
-      const startDate = `${year}-${month}-01`
-      const endMonth = parseInt(month) === 12 ? 1 : parseInt(month) + 1
-      const endYear = parseInt(month) === 12 ? parseInt(year) + 1 : parseInt(year)
-      const endDate = `${endYear}-${endMonth.toString().padStart(2, '0')}-01`
+      const endDate = `${endYear}-${String(endMonth).padStart(2, '0')}-01`
       
-      const result = await db.collection('schedules')
-        .where({
-          userId: userId,
-          date: db.command.gte(startDate).and(db.command.lt(endDate))
-        })
-        .orderBy('date', 'asc')
-        .orderBy('eventTime', 'asc')
-        .get()
-      
-      return {
-        success: true,
-        data: result.data
+      query = {
+        date: _.gte(startDate).and(_.lt(endDate))
       }
     }
-    // 如果没有提供查询条件，则返回最近30天的日程
-    else {
-      const today = new Date()
-      const year = today.getFullYear()
-      const month = (today.getMonth() + 1).toString().padStart(2, '0')
-      const day = today.getDate().toString().padStart(2, '0')
-      const todayStr = `${year}-${month}-${day}`
-      
-      // 30天后的日期
-      const futureDate = new Date()
-      futureDate.setDate(futureDate.getDate() + 30)
-      const futureYear = futureDate.getFullYear()
-      const futureMonth = (futureDate.getMonth() + 1).toString().padStart(2, '0')
-      const futureDay = futureDate.getDate().toString().padStart(2, '0')
-      const futureDateStr = `${futureYear}-${futureMonth}-${futureDay}`
-      
-      const result = await db.collection('schedules')
-        .where({
-          userId: userId,
-          date: db.command.gte(todayStr).and(db.command.lte(futureDateStr))
-        })
-        .orderBy('date', 'asc')
-        .orderBy('eventTime', 'asc')
-        .get()
-      
+    
+    // 查询数据库，不进行用户过滤，获取所有用户的行程
+    // 如果只需要当前用户的行程，可以添加: _openid: openid
+    const result = await db.collection('schedules').where(query).get()
+    
+    // 处理结果，将 _id 映射到 id 字段
+    const schedules = result.data.map(item => {
       return {
-        success: true,
-        data: result.data
+        ...item,
+        id: item.id || item._id // 如果没有id字段，使用_id
       }
+    })
+    
+    return {
+      success: true,
+      data: schedules
     }
-  } catch (e) {
+  } catch (error) {
+    console.error('获取日程失败:', error)
     return {
       success: false,
-      message: e.message
+      error: error
     }
   }
 } 

@@ -104,3 +104,52 @@
   </view>
 </view>
 
+<!-- AI对话助手 - 扁平简约风格 -->
+<view class="chat-container-flat">
+  <view class="chat-header">
+    <text class="chat-title">团宝儿的AI助手</text>
+  </view>
+  
+  <scroll-view class="messages-area" scroll-y="true" scroll-with-animation="true" id="chat-container">
+    <!-- 欢迎消息 -->
+    <view class="welcome-container" wx:if="{{chatMessages.length === 0}}">
+      <image class="chat-avatar" src="{{botInfo.avatarUrl}}" mode="aspectFill"></image>
+      <view class="welcome-message">
+        <text>我是团宝儿的小助手，有什么我可以帮您的吗？</text>
+      </view>
+    </view>
+    
+    <!-- 消息列表 -->
+    <view wx:for="{{chatMessages}}" wx:key="time" class="message-item {{item.type === 'user' ? 'user-message' : 'bot-message'}}">
+      <image class="chat-avatar" src="{{item.type === 'user' ? userInfo.avatarUrl : botInfo.avatarUrl}}" mode="aspectFill"></image>
+      <view class="message-content {{item.isError ? 'error' : ''}}">
+        <text>{{item.content}}</text>
+      </view>
+    </view>
+    
+    <!-- 加载状态 -->
+    <view class="loading-container" wx:if="{{isLoading}}">
+      <image class="chat-avatar" src="{{botInfo.avatarUrl}}" mode="aspectFill"></image>
+      <view class="loading-dots">
+        <view class="dot"></view>
+        <view class="dot"></view>
+        <view class="dot"></view>
+      </view>
+    </view>
+  </scroll-view>
+  
+  <view class="input-area">
+    <input class="message-input" 
+           placeholder="发送消息..." 
+           value="{{inputMessage}}" 
+           bindinput="handleInputChange"
+           confirm-type="send"
+           bindconfirm="sendMessage"
+           disabled="{{isLoading}}"/>
+    <view class="send-btn {{inputMessage.trim() === '' || isLoading ? 'disabled' : ''}}" 
+          bindtap="sendMessage">
+      <text>发送</text>
+    </view>
+  </view>
+</view>
+

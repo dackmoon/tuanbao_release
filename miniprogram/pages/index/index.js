@@ -9,7 +9,9 @@ Page({
       nickName: '',
     },
     hasUserInfo: false,
+    canIUse: wx.canIUse('button.open-type.getUserInfo'),
     canIUseGetUserProfile: wx.canIUse('getUserProfile'),
+    canIUseOpenData: wx.canIUse('open-data.type.userAvatarUrl') && wx.canIUse('open-data.type.userNickName'),
     canIUseNicknameComp: wx.canIUse('input.type.nickname'),
     colors: ['#FF9F43', '#FF6B6B', '#4834D4', '#6AB04C', '#686DE0', '#FF9F43'],
     // 轮播图数据
@@ -31,12 +33,38 @@ Page({
       }
     ],
     // 近期行程数据
-    upcomingSchedules: []
+    upcomingSchedules: [],
+    
+    // AI对话相关
+    chatMessages: [],
+    inputMessage: '',
+    isLoading: false,
+    sessionId: '',
+    // AI助手信息
+    botInfo: {
+      avatarUrl: 'https://636c-cloud1-0gpdzlered1eb63e-1347862742.tcb.qcloud.la/assert/icon/ai.png?sign=6651ef51cc03582cefe1c35b446fcdd6&t=1742275705',
+      nickName: '团宝儿的助手',
+    }
   },
   
   onLoad() {
+    // 检查是否支持wx.getUserProfile
+    if (wx.getUserProfile) {
+      this.setData({
+        canIUseGetUserProfile: true
+      });
+    }
+    
     // 检查登录状态
-    this.checkLoginStatus()
+    this.checkLoginStatus();
+    
+    // 获取近期行程
+    this.getUpcomingSchedules();
+    
+    // 为AI对话生成会话ID
+    this.setData({
+      sessionId: this.generateSessionId()
+    });
   },
   
   onShow() {
@@ -214,5 +242,158 @@ Page({
         triggered: false
       });
     }, 1000);
-  }
+  },
+  
+  // 为AI对话生成会话ID
+  generateSessionId() {
+    return 'session_' + new Date().getTime() + '_' + Math.floor(Math.random() * 1000);
+  },
+  
+  // 处理输入框内容变化
+  handleInputChange(e) {
+    this.setData({
+      inputMessage: e.detail.value
+    });
+  },
+  
+  // 发送消息到AI
+  sendMessage() {
+    const { inputMessage, chatMessages, userInfo, sessionId } = this.data;
+    
+    // 检查消息是否为空
+    if (!inputMessage.trim()) {
+      return;
+    }
+    
+    // 检查用户是否已登录
+    if (!getApp().globalData.isLoggedIn) {
+      wx.showToast({
+        title: '请先登录',
+        icon: 'none'
+      });
+      
+      setTimeout(() => {
+        wx.navigateTo({
+          url: '/pages/login/login'
+        });
+      }, 1000);
+      
+      return;
+    }
+    
+    // 添加用户消息到聊天记录
+    const newMessages = [...chatMessages, {
+      type: 'user',
+      content: inputMessage,
+      time: new Date().getTime()
+    }];
+    
+    // 清空输入框并显示加载状态
+    this.setData({
+      chatMessages: newMessages,
+      inputMessage: '',
+      isLoading: true
+    });
+    
+    // 自动滚动到底部
+    this.scrollToBottom();
+    
+    // 设置超时处理
+    const timeoutPromise = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        reject(new Error('请求超时，请稍后再试'));
+      }, 10000); // 10秒超时
+    });
+    
+    // 调用云函数获取AI回复
+    const callFunctionPromise = new Promise((resolve, reject) => {
+      wx.cloud.callFunction({
+        name: 'chatWithAI',
+        data: {
+          message: inputMessage,
+          sessionId: sessionId
+        },
+        success: res => {
+          resolve(res);
+        },
+        fail: err => {
+          reject(err);
+        }
+      });
+    });
+    
+    // 使用Promise.race竞争处理超时情况
+    Promise.race([callFunctionPromise, timeoutPromise])
+      .then(res => {
+        console.log('AI回复成功', res);
+        
+        if (res.result && (res.result.response || res.result.reply)) {
+          // 添加AI回复到聊天记录
+          const aiReplyMessages = [...this.data.chatMessages, {
+            type: 'bot',
+            content: res.result.response || res.result.reply,
+            time: new Date().getTime()
+          }];
+          
+          this.setData({
+            chatMessages: aiReplyMessages
+          });
+          
+          // 自动滚动到底部
+          this.scrollToBottom();
+        } else {
+          this.handleAIError('获取回复失败');
+        }
+      })
+      .catch(err => {
+        console.error('AI回复失败', err);
+        this.handleAIError(err.message);
+      })
+      .finally(() => {
+        this.setData({
+          isLoading: false
+        });
+      });
+  },
+  
+  // 处理AI响应错误
+  handleAIError(errorMsg) {
+    // 添加错误信息到聊天记录
+    const errorMessages = [...this.data.chatMessages, {
+      type: 'bot',
+      content: '非常抱歉，我暂时无法回复，请稍后再试～',
+      time: new Date().getTime(),
+      isError: true
+    }];
+    
+    this.setData({
+      chatMessages: errorMessages
+    });
+    
+    // 显示提示
+    wx.showToast({
+      title: errorMsg || '网络错误，请稍后再试',
+      icon: 'none'
+    });
+    
+    // 自动滚动到底部
+    this.scrollToBottom();
+  },
+  
+  // 滚动到聊天窗口底部
+  scrollToBottom() {
+    setTimeout(() => {
+      const query = wx.createSelectorQuery();
+      query.select('#chat-container').boundingClientRect();
+      query.selectViewport().scrollOffset();
+      query.exec(res => {
+        if (res && res[0] && res[1]) {
+          wx.pageScrollTo({
+            scrollTop: res[0].bottom,
+            duration: 300
+          });
+        }
+      });
+    }, 100);
+  },
 })
