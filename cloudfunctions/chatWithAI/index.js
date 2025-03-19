@@ -15,24 +15,6 @@ exports.main = async (event, context) => {
   const { message, sessionId } = event
   const wxContext = cloud.getWXContext()
 
-  // 使用更简短的回复示例，降低处理时间
-  const quickResponses = {
-    '你好': '您好！我是团宝儿的AI助手，很高兴为您服务。',
-    '帮助': '我可以回答问题、提供建议或者与您聊天。请告诉我您需要什么帮助？',
-    '再见': '再见！有需要随时找我聊天哦。',
-  };
-
-  // 检查是否有简单回复可用
-  for (const keyword in quickResponses) {
-    if (message.includes(keyword)) {
-      return {
-        success: true,
-        response: quickResponses[keyword],
-        sessionId: sessionId || Date.now().toString(),
-        fromCache: true
-      };
-    }
-  }
 
   try {
     // 调用通义千问API（降低token数量以加快响应）
@@ -49,8 +31,8 @@ exports.main = async (event, context) => {
           { role: 'system', content: '你是团宝儿的AI助手。回答简短友好。' },
           { role: 'user', content: message }
         ],
-        temperature: 0.7,
-        max_tokens: 100 // 降低token数量以减少处理时间
+        temperature: 1,
+        max_tokens: 1000 // 降低token数量以减少处理时间
       }
     });
 
