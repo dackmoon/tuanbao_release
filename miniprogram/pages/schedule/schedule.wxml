@@ -62,10 +62,19 @@
       <view class="empty-text">今天还没有安排哦~</view>
     </view>
     
-    <!-- 添加按钮 -->
-    <view class="add-btn" bindtap="showAddOptions">
-      <view class="add-icon">+</view>
-      <view class="add-text">添加日程</view>
+    <!-- 按钮组 -->
+    <view class="btn-group">
+      <!-- 任务管理按钮 -->
+      <view class="task-mgmt-btn" bindtap="showTaskManagement">
+        <view class="task-mgmt-icon">☰</view>
+        <view class="task-mgmt-text">任务管理</view>
+      </view>
+      
+      <!-- 添加按钮 -->
+      <view class="add-btn" bindtap="showAddOptions">
+        <view class="add-icon">+</view>
+        <view class="add-text">添加日程</view>
+      </view>
     </view>
   </view>
   
@@ -106,78 +115,182 @@
     </view>
   </view>
 
-  <!-- 添加选项弹窗 -->
-  <view class="add-options-mask" wx:if="{{showAddOptions}}" bindtap="hideAddOptions">
-    <view class="add-options-container" catchtap="stopPropagation">
-      <view class="add-option" bindtap="showAddSingle">
-        <view class="option-icon">+</view>
-        <view class="option-text">添加</view>
+  <!-- 新的统一添加日程弹窗 -->
+  <view class="schedule-mask" wx:if="{{showAddOptions}}" bindtap="hideAddOptions" catchtouchmove="stopPropagation">
+    <view class="schedule-modal-container" catchtap="stopPropagation" catchtouchmove="stopPropagation">
+      <!-- 弹窗头部 -->
+      <view class="schedule-header">
+        <view class="schedule-title">
+          <text class="title-icon">📅</text>
+          <text class="title-text">{{editingEventId ? '编辑日程' : '添加日程'}}</text>
+        </view>
+        <view class="schedule-close" bindtap="hideAddOptions">×</view>
       </view>
-      <view class="add-option" bindtap="showAddBatch">
-        <view class="option-icon">++</view>
-        <view class="option-text">批量添加</view>
+      
+      <!-- 表单内容 -->
+      <scroll-view scroll-y="true" class="schedule-form">
+        <!-- 主题输入 -->
+        <view class="form-section">
+          <view class="section-header">
+            <text class="section-icon">✏️</text>
+            <text class="section-title">主题</text>
+            <text class="required-mark">*</text>
+          </view>
+          <input 
+            class="form-input" 
+            placeholder="请输入日程标题" 
+            bindinput="onScheduleTitleInput" 
+            value="{{scheduleTitle}}"
+            maxlength="50"
+          />
+        </view>
+        
+        <!-- 时间选择 -->
+        <view class="form-section">
+          <view class="section-header">
+            <text class="section-icon">⏰</text>
+            <text class="section-title">时间</text>
+          </view>
+          
+          <!-- 时间选择器组（同一行） -->
+          <view class="time-selector-group">
+            <!-- 日期选择 -->
+            <picker 
+              mode="date" 
+              value="{{scheduleDate}}" 
+              bindchange="onScheduleDateChange"
+              class="inline-time-picker date-picker"
+            >
+              <view class="inline-picker-display">{{scheduleDate}}</view>
+            </picker>
+            
+            <!-- 开始时间选择 -->
+            <picker 
+              range="{{timeOptions}}" 
+              value="{{scheduleStartTimeIndex}}" 
+              bindchange="onScheduleStartTimeChange"
+              class="inline-time-picker"
+            >
+              <view class="inline-picker-display">{{scheduleStartTime}}</view>
+            </picker>
+            
+            <!-- 结束时间选择 -->
+            <picker 
+              range="{{timeOptions}}" 
+              value="{{scheduleEndTimeIndex}}" 
+              bindchange="onScheduleEndTimeChange"
+              class="inline-time-picker"
+            >
+              <view class="inline-picker-display">{{scheduleEndTime}}</view>
+            </picker>
+          </view>
+        </view>
+        
+        <!-- 重复选择 -->
+        <view class="form-section">
+          <view class="section-header">
+            <text class="section-icon">🔄</text>
+            <text class="section-title">重复</text>
+          </view>
+          <view class="repeat-options">
+            <view 
+              class="repeat-option {{repeatType === 'none' ? 'active' : ''}}" 
+              bindtap="selectRepeatType" 
+              data-type="none"
+            >
+              <text class="option-text">不重复</text>
+            </view>
+            <view 
+              class="repeat-option {{repeatType === 'daily' ? 'active' : ''}}" 
+              bindtap="selectRepeatType" 
+              data-type="daily"
+            >
+              <text class="option-text">每天</text>
+              <text class="option-desc" wx:if="{{repeatType === 'daily'}}">（30天）</text>
+            </view>
+            <view 
+              class="repeat-option {{repeatType === 'weekly' ? 'active' : ''}}" 
+              bindtap="selectRepeatType" 
+              data-type="weekly"
+            >
+              <text class="option-text">每周</text>
+              <text class="option-desc" wx:if="{{repeatType === 'weekly'}}">（4周）</text>
+            </view>
+          </view>
+        </view>
+        
+        <!-- 描述输入 -->
+        <view class="form-section">
+          <view class="section-header">
+            <text class="section-icon">📝</text>
+            <text class="section-title">描述</text>
+          </view>
+          <textarea 
+            class="form-textarea" 
+            placeholder="添加日程描述（可选）" 
+            bindinput="onScheduleDescInput" 
+            value="{{scheduleDescription}}"
+            maxlength="200"
+            auto-height
+          ></textarea>
+        </view>
+      </scroll-view>
+      
+      <!-- 底部按钮 -->
+      <view class="schedule-footer">
+        <button class="btn cancel-btn" bindtap="cancelScheduleAdd">取消</button>
+        <button class="btn save-btn" bindtap="saveNewSchedule">
+          {{editingEventId ? '保存修改' : '保存'}}
+        </button>
       </view>
     </view>
   </view>
 
-  <!-- 单个添加弹窗 -->
-  <view class="add-event-mask" wx:if="{{showSingleAdd}}" bindtap="hideSingleAdd">
-    <view class="add-event-container" catchtap="stopPropagation">
-      <view class="add-event-title">{{editingEventId ? '编辑日程' : '添加日程'}}</view>
-      <view class="add-event-date">{{selectedDate}}</view>
-      <view class="add-event-form">
-        <input class="event-input" placeholder="请输入日程内容" bindinput="inputEvent" value="{{eventContent}}"/>
-        <view class="time-container">
-          <view class="time-box">
-            <text class="time-label">时间</text>
-            <picker mode="time" value="{{eventTime}}" bindchange="bindEventTimeChange">
-              <view class="time-value-box">{{eventTime}}</view>
-            </picker>
+  <!-- 任务管理弹窗 -->
+  <view class="task-mgmt-mask" wx:if="{{showTaskManagement}}" bindtap="hideTaskManagement" catchtouchmove="stopPropagation">
+    <view class="task-mgmt-container" catchtap="stopPropagation" catchtouchmove="stopPropagation">
+      <view class="task-mgmt-header">
+        <view class="task-mgmt-title">任务管理</view>
+        <view class="task-mgmt-actions">
+          <view class="delete-all-btn" bindtap="deleteAllTasks" wx:if="{{allTasks.length > 0}}">
+            一键删除
           </view>
+          <view class="clear-all-data-btn" bindtap="clearAllData">
+            清空所有数据
+          </view>
+          <view class="task-mgmt-close" bindtap="hideTaskManagement">×</view>
         </view>
-        <textarea class="event-desc" placeholder="添加描述（可选）" bindinput="inputDesc" value="{{eventDesc}}"></textarea>
       </view>
-      <view class="add-event-btns">
-        <button class="btn cancel-btn" bindtap="cancelAdd">取消</button>
-        <button class="btn save-btn" bindtap="saveEvent">{{editingEventId ? '保存修改' : '保存'}}</button>
-      </view>
-    </view>
-  </view>
-
-  <!-- 批量添加弹窗 -->
-  <view class="add-event-mask" wx:if="{{showBatchAdd}}" bindtap="hideBatchAdd">
-    <view class="add-event-container" catchtap="stopPropagation">
-      <view class="add-event-title">批量添加日程</view>
-      <view class="add-event-form">
-        <input class="event-input" placeholder="请输入日程内容" bindinput="inputEvent" value="{{eventContent}}"/>
-        <view class="time-container">
-          <view class="time-box">
-            <text class="time-label">开始</text>
-            <picker mode="date" value="{{startDate}}" bindchange="bindStartDateChange">
-              <view class="time-value-box">{{startDate}}</view>
-            </picker>
+      
+      <scroll-view scroll-y="true" class="task-mgmt-content">
+        <!-- 任务列表 -->
+        <block wx:if="{{allTasks.length > 0}}">
+          <view class="task-list">
+            <view class="task-item" wx:for="{{allTasks}}" wx:key="_id">
+              <view class="task-number">{{item.taskNumber}}</view>
+              <view class="task-content">
+                <view class="task-title">{{item.content || item.title}}</view>
+                <view class="task-operation-info">
+                  <text class="operation-type {{item.operationType === 'batch' ? 'batch-type' : 'single-type'}}">{{item.operationType === 'batch' ? '批量操作' : '单个操作'}}</text>
+                  <text class="schedule-count">包含 {{item.scheduleCount}} 个日程</text>
+                </view>
+                <view class="task-date-range">时间范围：{{item.dateRange}}</view>
+                <view class="task-create-time">创建于：{{item.formattedCreateTime}}</view>
+              </view>
+              <view class="task-delete-btn" bindtap="deleteTaskFromManagement" data-id="{{item._id}}">
+                <text class="delete-icon">×</text>
+              </view>
+            </view>
           </view>
-          <view class="time-box">
-            <text class="time-label">结束</text>
-            <picker mode="date" value="{{endDate}}" bindchange="bindEndDateChange">
-              <view class="time-value-box">{{endDate}}</view>
-            </picker>
-          </view>
+        </block>
+        
+        <!-- 空状态 -->
+        <view class="task-empty" wx:else>
+          <view class="task-empty-icon">□</view>
+          <view class="task-empty-text">暂无任务</view>
+          <view class="task-empty-desc">点击下方"添加日程"创建您的第一个任务</view>
         </view>
-        <view class="time-container">
-          <view class="time-box">
-            <text class="time-label">时间</text>
-            <picker mode="time" value="{{batchEventTime}}" bindchange="bindBatchEventTimeChange">
-              <view class="time-value-box">{{batchEventTime}}</view>
-            </picker>
-          </view>
-        </view>
-        <textarea class="event-desc" placeholder="添加描述（可选）" bindinput="inputDesc" value="{{eventDesc}}"></textarea>
-      </view>
-      <view class="add-event-btns">
-        <button class="btn cancel-btn" bindtap="cancelAdd">取消</button>
-        <button class="btn save-btn batch-save-btn" bindtap="saveBatchEvent">批量保存</button>
-      </view>
+      </scroll-view>
     </view>
   </view>
 </view> 

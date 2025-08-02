@@ -11,32 +11,32 @@ Page({
     formattedDate: '',
     weekdays: ['日', '一', '二', '三', '四', '五', '六'],
     days: [],
-    scheduleList: [],
-    showAddOptions: false,
-    showSingleAdd: false,
-    showBatchAdd: false,
-    newSchedule: '',
-    batchSchedule: '',
-    nextId: 1,
-    scheduleDates: {}, // 存储有日程的日期
     dayEvents: [],
+    showAddOptions: false,
     showYearMonthPicker: false,
     yearRange: [],
     yearArray: [],
     monthArray: [],
     yearIndex: 10, // 默认选中当前年份
     monthIndex: 0, // 默认选中当前月份
-    eventContent: '',
-    eventDesc: '',
-    startTime: '08:00',
-    endTime: '09:00',
-    startDate: '',
-    endDate: '',
     nextEventId: 100,
-    events: [], // 添加这一行，初始化为空数组
-    eventTime: '12:00',
-    batchEventTime: '12:00', // 批量添加的时间
-    editingEventId: null
+    events: [], // 事件列表，从云数据库获取
+    editingEventId: null,
+    showTaskManagement: false, // 是否显示任务管理弹窗
+    allTasks: [], // 任务管理列表（操作记录列表）
+    
+    // 新的统一表单数据
+    scheduleTitle: '',          // 日程主题
+    scheduleDate: '',           // 选择的日期
+    scheduleStartTime: '',      // 开始时间
+    scheduleEndTime: '',        // 结束时间
+    scheduleStartTimeIndex: 0,  // 开始时间索引
+    scheduleEndTimeIndex: 2,    // 结束时间索引
+    repeatType: 'none',         // 重复类型：none/daily/weekly
+    scheduleDescription: '',    // 日程描述
+    
+    // 时间选择器选项
+    timeOptions: [],           // 半小时步长的时间选项
   },
 
   /**
@@ -88,8 +88,66 @@ Page({
       endDate: formattedDateStr
     });
     
+    // 初始化新表单数据
+    this.initializeNewScheduleForm();
+    
     // 加载当天的事件
     this.getEventsForDay(formattedDateStr);
+  },
+
+  /**
+   * 初始化新的日程表单数据
+   */
+  initializeNewScheduleForm() {
+    // 生成半小时步长的时间选项 (00:00 - 23:30)
+    const timeOptions = [];
+    for (let hour = 0; hour < 24; hour++) {
+      for (let minute = 0; minute < 60; minute += 30) {
+        const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        timeOptions.push(timeStr);
+      }
+    }
+    
+    // 获取当前时间
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+    
+    // 计算当前时间对应的半小时时间点
+    const roundedMinute = currentMinute >= 30 ? 30 : 0;
+    const currentTimeStr = `${currentHour.toString().padStart(2, '0')}:${roundedMinute.toString().padStart(2, '0')}`;
+    
+    // 计算结束时间（开始时间+1小时）
+    let endHour = currentHour + 1;
+    let endMinute = roundedMinute;
+    
+    // 处理跨天情况
+    if (endHour >= 24) {
+      endHour = 23;
+      endMinute = 30;
+    }
+    
+    const endTimeStr = `${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')}`;
+    
+    // 格式化当前日期
+    const today = new Date();
+    const currentDateStr = this.formatDate(today);
+    
+    // 计算时间选择器的索引
+    const startTimeIndex = timeOptions.indexOf(currentTimeStr);
+    const endTimeIndex = timeOptions.indexOf(endTimeStr);
+    
+    this.setData({
+      timeOptions: timeOptions,
+      scheduleDate: currentDateStr,
+      scheduleStartTime: currentTimeStr,
+      scheduleEndTime: endTimeStr,
+      scheduleStartTimeIndex: startTimeIndex >= 0 ? startTimeIndex : 0,
+      scheduleEndTimeIndex: endTimeIndex >= 0 ? endTimeIndex : 1,
+      scheduleTitle: '',
+      scheduleDescription: '',
+      repeatType: 'none'
+    });
   },
 
   /**
@@ -134,6 +192,9 @@ Page({
     // 重新生成日历
     this.generateCalendar(year, month);
     
+    // 重新加载该月份的数据
+    this.loadEventsFromCloud(year, month);
+    
     // 如果当前选中的日期不在新的月份中，则选中新月份的第一天
     const currentSelectedDate = new Date(this.data.selectedDate);
     if (currentSelectedDate.getFullYear() !== year || currentSelectedDate.getMonth() !== month - 1) {
@@ -142,9 +203,6 @@ Page({
         selectedDate: newSelectedDate,
         formattedDate: this.formatDisplayDate(new Date(newSelectedDate))
       });
-      
-      // 加载选中日期的日程
-      this.loadScheduleData();
     }
   },
 
@@ -169,6 +227,8 @@ Page({
       pickerDate
     });
     
+    // 重新加载该月份的数据
+    this.loadEventsFromCloud(year, month);
     this.generateCalendar(year, month);
   },
 
@@ -193,6 +253,8 @@ Page({
       pickerDate
     });
     
+    // 重新加载该月份的数据
+    this.loadEventsFromCloud(year, month);
     this.generateCalendar(year, month);
   },
 
@@ -348,21 +410,7 @@ Page({
     this.setData({ dayEvents });
   },
 
-  /**
-   * 加载日程数据
-   */
-  loadScheduleData() {
-    // 从本地存储获取数据
-    const scheduleList = wx.getStorageSync(`schedule_${this.data.selectedDate}`) || [];
-    let nextId = 1;
-    if (scheduleList.length > 0) {
-      nextId = Math.max(...scheduleList.map(item => item.id)) + 1;
-    }
-    this.setData({
-      scheduleList,
-      nextId
-    });
-  },
+
 
   /**
    * 显示添加选项
@@ -373,16 +421,7 @@ Page({
     });
   },
 
-  /**
-   * 隐藏所有弹出层
-   */
-  hideAllPopups() {
-    this.setData({
-      showAddOptions: false,
-      showSingleAdd: false,
-      showBatchAdd: false
-    });
-  },
+
 
   /**
    * 隐藏添加选项弹窗
@@ -400,220 +439,357 @@ Page({
     return;
   },
 
+  // ==================== 新表单事件处理函数 ====================
+
   /**
-   * 显示单个添加
+   * 主题输入事件
    */
-  showAddSingle() {
+  onScheduleTitleInput(e) {
     this.setData({
-      showAddOptions: false,
-      showSingleAdd: true,
-      eventContent: '',
-      eventDesc: '',
-      eventTime: '12:00'
+      scheduleTitle: e.detail.value
     });
   },
 
   /**
-   * 隐藏单个添加
+   * 日期选择事件
    */
-  hideSingleAdd() {
+  onScheduleDateChange(e) {
     this.setData({
-      showSingleAdd: false,
-      editingEventId: null // 清除编辑状态
+      scheduleDate: e.detail.value
     });
   },
 
   /**
-   * 显示批量添加
+   * 开始时间选择事件
    */
-  showAddBatch() {
+  onScheduleStartTimeChange(e) {
+    const selectedIndex = parseInt(e.detail.value);
+    const selectedTime = this.data.timeOptions[selectedIndex];
+    
+    // 检查结束时间是否需要调整
+    let endTimeIndex = this.data.scheduleEndTimeIndex;
+    if (selectedIndex >= endTimeIndex) {
+      // 如果开始时间晚于或等于结束时间，自动调整结束时间
+      endTimeIndex = Math.min(selectedIndex + 2, this.data.timeOptions.length - 1); // 至少间隔1小时
+    }
+    
     this.setData({
-      showAddOptions: false,
-      showBatchAdd: true,
-      eventContent: '',
-      eventDesc: '',
-      batchEventTime: '12:00'
+      scheduleStartTime: selectedTime,
+      scheduleStartTimeIndex: selectedIndex,
+      scheduleEndTime: this.data.timeOptions[endTimeIndex],
+      scheduleEndTimeIndex: endTimeIndex
     });
   },
 
   /**
-   * 隐藏批量添加
+   * 结束时间选择事件
    */
-  hideBatchAdd() {
-    this.setData({
-      showBatchAdd: false
-    });
-  },
-
-  /**
-   * 取消添加
-   */
-  cancelAdd() {
-    this.setData({
-      showSingleAdd: false,
-      showBatchAdd: false,
-      editingEventId: null
-    });
-  },
-
-  /**
-   * 输入变化
-   */
-  onInputChange(e) {
-    this.setData({
-      newSchedule: e.detail.value
-    });
-  },
-
-  /**
-   * 批量输入变化
-   */
-  onBatchInputChange(e) {
-    this.setData({
-      batchSchedule: e.detail.value
-    });
-  },
-
-  /**
-   * 保存日程
-   */
-  saveSchedule() {
-    if (!this.data.newSchedule.trim()) {
+  onScheduleEndTimeChange(e) {
+    const selectedIndex = parseInt(e.detail.value);
+    const selectedTime = this.data.timeOptions[selectedIndex];
+    
+    // 检查是否早于开始时间
+    if (selectedIndex <= this.data.scheduleStartTimeIndex) {
       wx.showToast({
-        title: '请输入日程内容',
+        title: '结束时间不能早于开始时间',
         icon: 'none'
       });
       return;
     }
+    
+    this.setData({
+      scheduleEndTime: selectedTime,
+      scheduleEndTimeIndex: selectedIndex
+    });
+  },
 
-    const newItem = {
-      id: this.data.nextId,
-      content: this.data.newSchedule,
-      date: this.data.selectedDate,
-      completed: false
+  /**
+   * 重复类型选择事件
+   */
+  selectRepeatType(e) {
+    const type = e.currentTarget.dataset.type;
+    this.setData({
+      repeatType: type
+    });
+  },
+
+  /**
+   * 描述输入事件
+   */
+  onScheduleDescInput(e) {
+    this.setData({
+      scheduleDescription: e.detail.value
+    });
+  },
+
+  /**
+   * 取消添加新日程
+   */
+  cancelScheduleAdd() {
+    this.setData({
+      showAddOptions: false
+    });
+    
+    // 重置表单数据
+    this.initializeNewScheduleForm();
+  },
+
+  /**
+   * 保存新日程
+   */
+  saveNewSchedule() {
+    // 验证标题不能为空
+    if (!this.data.scheduleTitle.trim()) {
+      wx.showToast({
+        title: '请输入日程标题',
+        icon: 'none'
+      });
+      return;
+    }
+    
+    // 验证时间范围
+    if (this.data.scheduleStartTimeIndex >= this.data.scheduleEndTimeIndex) {
+      wx.showToast({
+        title: '结束时间必须晚于开始时间',
+        icon: 'none'
+      });
+      return;
+    }
+    
+    // 保存输入数据，防止在处理过程中被清空
+    const scheduleData = {
+      title: this.data.scheduleTitle.trim(),
+      date: this.data.scheduleDate,
+      startTime: this.data.scheduleStartTime,
+      endTime: this.data.scheduleEndTime,
+      repeatType: this.data.repeatType,
+      description: this.data.scheduleDescription.trim() || '无描述'
     };
-
-    const scheduleList = [...this.data.scheduleList, newItem];
     
-    this.setData({
-      scheduleList,
-      nextId: this.data.nextId + 1,
-      showSingleAdd: false,
-      newSchedule: ''
-    });
-
-    // 保存到本地存储
-    wx.setStorageSync(`schedule_${this.data.selectedDate}`, scheduleList);
+    // 生成完整的事件时间描述
+    const eventTimeDescription = `${scheduleData.startTime}-${scheduleData.endTime}`;
     
-    // 更新日程日期标记
-    this.updateScheduleDateMarker(this.data.selectedDate, true);
-
-    wx.showToast({
-      title: '添加成功',
-      icon: 'success'
+    wx.showLoading({
+      title: '保存中',
     });
+    
+    // 根据重复类型生成日程
+    this.generateSchedulesBasedOnRepeat(scheduleData, eventTimeDescription);
   },
 
   /**
-   * 批量保存日程
+   * 根据重复类型生成日程
    */
-  saveBatchSchedule() {
-    if (!this.data.batchSchedule.trim()) {
-      wx.showToast({
-        title: '请输入日程内容',
-        icon: 'none'
-      });
-      return;
-    }
-
-    const lines = this.data.batchSchedule.split('\n').filter(line => line.trim());
-    if (lines.length === 0) {
-      wx.showToast({
-        title: '请输入有效内容',
-        icon: 'none'
-      });
-      return;
-    }
-
-    let nextId = this.data.nextId;
-    const newItems = lines.map(line => {
-      return {
-        id: nextId++,
-        content: line.trim(),
-        date: this.data.selectedDate,
-        completed: false
-      };
-    });
-
-    const scheduleList = [...this.data.scheduleList, ...newItems];
+  generateSchedulesBasedOnRepeat(scheduleData, eventTimeDescription) {
+    const startDate = new Date(scheduleData.date);
+    let scheduleCount = 1;
+    let dateRangeStr = scheduleData.date;
     
-    this.setData({
-      scheduleList,
-      nextId,
-      showBatchAdd: false,
-      batchSchedule: ''
-    });
-
-    // 保存到本地存储
-    wx.setStorageSync(`schedule_${this.data.selectedDate}`, scheduleList);
+    // 计算需要生成的日期列表
+    let datesToGenerate = [];
     
-    // 更新日程日期标记
-    this.updateScheduleDateMarker(this.data.selectedDate, true);
-
-    wx.showToast({
-      title: `成功添加${newItems.length}条日程`,
-      icon: 'success'
-    });
-  },
-
-  /**
-   * 删除日程
-   */
-  deleteSchedule(e) {
-    const id = e.currentTarget.dataset.id;
-    
-    wx.showModal({
-      title: '提示',
-      content: '确定要删除这条日程吗？',
-      success: (res) => {
-        if (res.confirm) {
-          const scheduleList = this.data.scheduleList.filter(item => item.id !== id);
-          
-          this.setData({
-            scheduleList
-          });
-
-          // 保存到本地存储
-          wx.setStorageSync(`schedule_${this.data.selectedDate}`, scheduleList);
-          
-          // 如果删除后没有日程了，更新日期标记
-          if (scheduleList.length === 0) {
-            this.updateScheduleDateMarker(this.data.selectedDate, false);
-          }
-
-          wx.showToast({
-            title: '删除成功',
-            icon: 'success'
-          });
+    switch (scheduleData.repeatType) {
+      case 'none':
+        // 不重复，只生成一个日程
+        datesToGenerate = [scheduleData.date];
+        scheduleCount = 1;
+        dateRangeStr = scheduleData.date;
+        break;
+        
+      case 'daily':
+        // 每天重复，生成30天
+        scheduleCount = 30;
+        for (let i = 0; i < 30; i++) {
+          const currentDate = new Date(startDate);
+          currentDate.setDate(startDate.getDate() + i);
+          datesToGenerate.push(this.formatDateToString(currentDate));
         }
-      }
+        
+        // 计算结束日期
+        const endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + 29);
+        dateRangeStr = `${scheduleData.date} 至 ${this.formatDateToString(endDate)}`;
+        break;
+        
+      case 'weekly':
+        // 每周重复，生成4周（28天，每7天一次）
+        scheduleCount = 4;
+        for (let i = 0; i < 4; i++) {
+          const currentDate = new Date(startDate);
+          currentDate.setDate(startDate.getDate() + (i * 7));
+          datesToGenerate.push(this.formatDateToString(currentDate));
+        }
+        
+        // 计算结束日期
+        const weeklyEndDate = new Date(startDate);
+        weeklyEndDate.setDate(startDate.getDate() + 21); // 3周后
+        dateRangeStr = `${scheduleData.date} 至 ${this.formatDateToString(weeklyEndDate)} (每周)`;
+        break;
+        
+      default:
+        datesToGenerate = [scheduleData.date];
+        scheduleCount = 1;
+        dateRangeStr = scheduleData.date;
+    }
+    
+    // 开始批量添加日程
+    this.addMultipleSchedules(scheduleData, datesToGenerate, eventTimeDescription, dateRangeStr, scheduleCount);
+  },
+
+  /**
+   * 批量添加多个日程
+   */
+  addMultipleSchedules(scheduleData, datesToGenerate, eventTimeDescription, dateRangeStr, totalCount) {
+    let successCount = 0;
+    let failCount = 0;
+    let addedScheduleIds = [];
+    let completedCount = 0;
+    
+    // 批量添加的处理函数
+    const addSingleSchedule = (dateStr, index) => {
+      wx.cloud.callFunction({
+        name: 'addSchedule',
+        data: {
+          title: scheduleData.title,
+          description: scheduleData.description,
+          date: dateStr,
+          eventTime: eventTimeDescription
+        },
+        success: res => {
+          if (res.result.success) {
+            successCount++;
+            addedScheduleIds.push(res.result.scheduleId);
+            
+            // 创建新事件对象并添加到本地数据
+            const newEvent = {
+              id: this.data.nextEventId + index,
+              _id: res.result.scheduleId,
+              date: dateStr,
+              eventTime: eventTimeDescription,
+              title: scheduleData.title,
+              description: scheduleData.description,
+              completed: false,
+              color: '#1296db'
+            };
+            
+            // 添加到事件列表
+            const events = [...this.data.events, newEvent];
+            this.setData({ events });
+          } else {
+            failCount++;
+          }
+        },
+        fail: () => {
+          failCount++;
+        },
+        complete: () => {
+          completedCount++;
+          
+          // 检查是否所有请求都完成了
+          if (completedCount === datesToGenerate.length) {
+            this.handleScheduleAddComplete(scheduleData, successCount, failCount, addedScheduleIds, dateRangeStr, totalCount);
+          }
+        }
+      });
+    };
+    
+    // 执行批量添加
+    datesToGenerate.forEach((dateStr, index) => {
+      addSingleSchedule(dateStr, index);
     });
   },
 
   /**
-   * 更新日程日期标记
+   * 处理日程添加完成后的逻辑
    */
-  updateScheduleDateMarker(date, hasSchedule) {
-    const scheduleDates = this.data.scheduleDates;
-    scheduleDates[date] = hasSchedule;
+  handleScheduleAddComplete(scheduleData, successCount, failCount, addedScheduleIds, dateRangeStr, totalCount) {
+    wx.hideLoading();
     
+    // 更新 nextEventId
     this.setData({
-      scheduleDates
+      nextEventId: this.data.nextEventId + totalCount
     });
     
-    // 更新日历上的标记
-    this.updateCalendarMarkers();
+    // 创建操作记录
+    if (successCount > 0) {
+      const operationType = scheduleData.repeatType === 'none' ? 'single' : 'batch';
+      const operationTitle = operationType === 'single' 
+        ? `添加日程：${scheduleData.title}`
+        : `${this.getRepeatTypeDescription(scheduleData.repeatType)}添加：${scheduleData.title}`;
+      
+      this.createOperationRecord({
+        operationType: operationType,
+        title: operationTitle,
+        scheduleCount: successCount,
+        scheduleIds: addedScheduleIds,
+        dateRange: dateRangeStr,
+        content: scheduleData.title,
+        repeatType: scheduleData.repeatType
+      });
+    }
+    
+    // 显示结果
+    if (failCount === 0) {
+      wx.showToast({
+        title: successCount === 1 ? '日程添加成功' : `成功添加${successCount}个日程`,
+        icon: 'success'
+      });
+    } else {
+      wx.showToast({
+        title: `成功${successCount}个，失败${failCount}个`,
+        icon: 'none'
+      });
+    }
+    
+    // 关闭弹窗并重置表单
+    this.setData({
+      showAddOptions: false
+    });
+    this.initializeNewScheduleForm();
+    
+    // 更新日历和当天事件列表
+    this.generateCalendar(this.data.year, this.data.month);
+    
+    // 更新当前选中日期的事件
+    const dateParts = this.data.selectedDate.match(/(\d+)年(\d+)月(\d+)日/);
+    if (dateParts) {
+      const year = dateParts[1];
+      const month = dateParts[2].padStart(2, '0');
+      const day = dateParts[3].padStart(2, '0');
+      const dateStr = `${year}-${month}-${day}`;
+      this.getEventsForDay(dateStr);
+    }
   },
+
+  /**
+   * 获取重复类型的描述
+   */
+  getRepeatTypeDescription(repeatType) {
+    switch (repeatType) {
+      case 'daily':
+        return '每日重复';
+      case 'weekly':
+        return '每周重复';
+      default:
+        return '单次';
+    }
+  },
+
+  /**
+   * 格式化日期为字符串 (YYYY-MM-DD)
+   */
+  formatDateToString(date) {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  },
+
+
+
+
+
+
 
   /**
    * 生命周期函数--监听页面初次渲染完成
@@ -670,34 +846,7 @@ Page({
     };
   },
 
-  /**
-   * 显示日程详情
-   */
-  showScheduleDetail(e) {
-    const id = e.currentTarget.dataset.id;
-    const schedule = this.data.scheduleList.find(item => item.id === id);
-    
-    if (schedule) {
-      wx.showModal({
-        title: '日程详情',
-        content: schedule.content,
-        showCancel: false,
-        confirmText: '确定'
-      });
-    }
-  },
 
-  // 添加事件
-  addEvent() {
-    wx.showToast({
-      title: '添加日程功能开发中',
-      icon: 'none'
-    });
-    // 这里可以跳转到添加日程的页面
-    // wx.navigateTo({
-    //   url: '/pages/add-event/add-event?date=' + this.data.selectedDate,
-    // })
-  },
   
   // 编辑事件
   editEvent(e) {
@@ -811,6 +960,9 @@ Page({
     this.setData({
       year: year
     });
+    
+    // 重新加载该月份的数据
+    this.loadEventsFromCloud(year, this.data.month);
     this.generateCalendar(year, this.data.month);
   },
 
@@ -821,6 +973,9 @@ Page({
       month: month,
       showYearMonthPicker: false
     });
+    
+    // 重新加载该月份的数据
+    this.loadEventsFromCloud(this.data.year, month);
     this.generateCalendar(this.data.year, month);
   },
 
@@ -828,12 +983,19 @@ Page({
   setToday() {
     const today = new Date();
     const formattedDate = this.formatDisplayDate(today);
+    const year = today.getFullYear();
+    const month = today.getMonth() + 1;
+    
     this.setData({
       selectedDate: formattedDate,
-      formattedDate: formattedDate
+      formattedDate: formattedDate,
+      year: year,
+      month: month
     });
-    this.generateCalendar(today.getFullYear(), today.getMonth() + 1);
-    this.loadScheduleData();
+    
+    // 重新加载当前月份的数据
+    this.loadEventsFromCloud(year, month);
+    this.generateCalendar(year, month);
   },
 
   // 处理日期选择器变化
@@ -849,69 +1011,17 @@ Page({
       monthIndex: val[1]
     });
     
+    // 重新加载该月份的数据
+    this.loadEventsFromCloud(year, month);
     this.generateCalendar(year, month);
   },
 
-  // 输入日程内容
-  inputEvent(e) {
-    this.setData({
-      eventContent: e.detail.value
-    });
-  },
 
-  // 输入日程描述
-  inputDesc(e) {
-    this.setData({
-      eventDesc: e.detail.value
-    });
-  },
-
-  // 选择开始时间
-  bindStartTimeChange(e) {
-    this.setData({
-      startTime: e.detail.value
-    });
-  },
-
-  // 选择结束时间
-  bindEndTimeChange(e) {
-    this.setData({
-      endTime: e.detail.value
-    });
-  },
-
-  // 选择开始日期
-  bindStartDateChange(e) {
-    this.setData({
-      startDate: e.detail.value
-    });
-  },
-
-  // 选择结束日期
-  bindEndDateChange(e) {
-    this.setData({
-      endDate: e.detail.value
-    });
-  },
-
-  // 选择事件时间
-  bindEventTimeChange(e) {
-    this.setData({
-      eventTime: e.detail.value
-    });
-  },
-
-  // 选择批量事件时间
-  bindBatchEventTimeChange(e) {
-    this.setData({
-      batchEventTime: e.detail.value
-    });
-  },
 
   /**
    * 从云数据库加载事件数据
    */
-  loadEventsFromCloud() {
+  loadEventsFromCloud(year = this.data.year, month = this.data.month) {
     wx.showLoading({
       title: '加载中',
     });
@@ -920,8 +1030,8 @@ Page({
     wx.cloud.callFunction({
       name: 'getSchedules',
       data: {
-        year: this.data.year,
-        month: this.data.month
+        year: year,
+        month: month
       },
       success: res => {
         if (res.result.success) {
@@ -1103,12 +1213,25 @@ Page({
             // 添加到事件列表
             const events = [...this.data.events, newEvent];
             
+            // 在重置数据之前保存用户输入的内容
+            const savedEventContent = this.data.eventContent;
+            
             this.setData({
               events,
               showSingleAdd: false,
               eventContent: '',
               eventDesc: '',
               eventTime: '12:00'
+            });
+            
+            // 创建操作记录（使用保存的内容）
+            this.createOperationRecord({
+              operationType: 'single',
+              title: `添加日程：${savedEventContent}`,
+              scheduleCount: 1,
+              scheduleIds: [res.result.scheduleId],
+              dateRange: standardDateStr,
+              content: savedEventContent
             });
             
             // 更新日历和当天事件列表
@@ -1140,107 +1263,381 @@ Page({
     }
   },
 
-  // 批量保存日程
-  saveBatchEvent() {
-    if (!this.data.eventContent) {
-      wx.showToast({
-        title: '请输入日程内容',
-        icon: 'none'
-      });
-      return;
-    }
-    
-    const startDate = new Date(this.data.startDate);
-    const endDate = new Date(this.data.endDate);
-    
-    if (startDate > endDate) {
-      wx.showToast({
-        title: '开始日期不能晚于结束日期',
-        icon: 'none'
-      });
-      return;
-    }
-    
+
+
+  /**
+   * 显示任务管理弹窗
+   */
+  showTaskManagement() {
+    this.setData({
+      showTaskManagement: true
+    });
+    // 加载所有任务
+    this.loadAllTasks();
+  },
+
+  /**
+   * 隐藏任务管理弹窗
+   */
+  hideTaskManagement() {
+    this.setData({
+      showTaskManagement: false
+    });
+  },
+
+  /**
+   * 加载所有任务（操作记录）
+   */
+  loadAllTasks() {
     wx.showLoading({
-      title: '保存中',
+      title: '加载中',
     });
     
-    // 创建日期范围内的所有事件
-    let currentDate = new Date(startDate);
-    let successCount = 0;
-    let failCount = 0;
-    let totalCount = 0;
-    
-    // 计算总天数
-    const totalDays = Math.floor((endDate - startDate) / (24 * 60 * 60 * 1000)) + 1;
-    
-    // 批量添加函数
-    const addBatchEvents = (currentDate) => {
-      if (currentDate > endDate) {
-        // 所有日期处理完毕
-        wx.hideLoading();
-        
-        if (failCount === 0) {
-          wx.showToast({
-            title: `成功添加${successCount}个日程`,
-            icon: 'success'
+    // 调用云函数获取所有操作记录
+    wx.cloud.callFunction({
+      name: 'getAllOperationRecords',
+      data: {},
+      success: res => {
+        if (res.result.success) {
+          // 处理操作记录数据，添加编号和格式化时间
+          const tasks = res.result.data.map((task, index) => {
+            return {
+              ...task,
+              taskNumber: index + 1,
+              formattedCreateTime: this.formatCreateTime(task.operationTime || task.createdAt || task._id) // 使用操作时间
+            };
+          });
+          
+          this.setData({
+            allTasks: tasks
           });
         } else {
           wx.showToast({
-            title: `成功${successCount}个，失败${failCount}个`,
+            title: '加载失败',
             icon: 'none'
           });
         }
-        
-        // 更新界面
-        this.setData({
-          showBatchAdd: false,
-          eventContent: '',
-          eventDesc: '',
-          batchEventTime: '12:00'
+      },
+      fail: err => {
+        console.error('获取所有任务失败', err);
+        wx.showToast({
+          title: '加载失败',
+          icon: 'none'
         });
-        
-        // 重新加载数据
-        this.loadEventsFromCloud();
-        return;
+      },
+      complete: () => {
+        wx.hideLoading();
       }
-      
-      const year = currentDate.getFullYear();
-      const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
-      const day = currentDate.getDate().toString().padStart(2, '0');
-      const dateStr = `${year}-${month}-${day}`;
-      
-      totalCount++;
-      
-      // 调用云函数添加数据
-      wx.cloud.callFunction({
-        name: 'addSchedule',
-        data: {
-          title: this.data.eventContent,
-          description: this.data.eventDesc || '无描述',
-          date: dateStr,
-          eventTime: this.data.batchEventTime
-        },
-        success: res => {
-          if (res.result.success) {
-            successCount++;
-          } else {
-            failCount++;
-          }
-        },
-        fail: () => {
-          failCount++;
-        },
-        complete: () => {
-          // 处理下一天
-          const nextDate = new Date(currentDate);
-          nextDate.setDate(nextDate.getDate() + 1);
-          addBatchEvents(nextDate);
-        }
-      });
-    };
+    });
+  },
+
+  /**
+   * 格式化创建时间
+   */
+  formatCreateTime(timeValue) {
+    let date;
     
-    // 开始批量添加
-    addBatchEvents(currentDate);
+    // 处理不同类型的时间值
+    if (!timeValue) {
+      date = new Date();
+    } else if (typeof timeValue === 'string') {
+      // 如果是ISO时间字符串 (如: 2024-01-15T10:30:00.000Z)
+      if (timeValue.includes('T') || timeValue.includes('-')) {
+        date = new Date(timeValue);
+      } 
+      // 如果是MongoDB的ObjectId格式 (24位十六进制字符串)
+      else if (timeValue.length === 24) {
+        const timestamp = parseInt(timeValue.substring(0, 8), 16) * 1000;
+        date = new Date(timestamp);
+      } 
+      // 其他情况尝试直接解析
+      else {
+        date = new Date(timeValue);
+      }
+    } else if (timeValue instanceof Date) {
+      date = timeValue;
+    } else {
+      date = new Date();
+    }
+    
+    // 检查日期是否有效
+    if (isNaN(date.getTime())) {
+      date = new Date();
+    }
+    
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const hour = date.getHours().toString().padStart(2, '0');
+    const minute = date.getMinutes().toString().padStart(2, '0');
+    
+    return `${year}-${month}-${day} ${hour}:${minute}`;
+  },
+
+  /**
+   * 删除任务（从任务管理页面）- 删除操作记录及其关联的所有日程
+   */
+  deleteTaskFromManagement(e) {
+    const { id } = e.currentTarget.dataset;
+    
+    // 查找要删除的操作记录
+    const taskToDelete = this.data.allTasks.find(task => task.id === id || task._id === id);
+    
+    if (!taskToDelete) {
+      wx.showToast({
+        title: '未找到该任务',
+        icon: 'none'
+      });
+      return;
+    }
+    
+    const scheduleCount = taskToDelete.scheduleCount || 1;
+    const operationType = taskToDelete.operationType === 'batch' ? '批量操作' : '单个操作';
+    
+    wx.showModal({
+      title: '提示',
+      content: `确定要删除这个${operationType}吗？这将删除 ${scheduleCount} 个相关日程。`,
+      success: (res) => {
+        if (res.confirm) {
+          wx.showLoading({
+            title: '删除中',
+          });
+          
+          // 调用云函数删除操作记录及其关联的日程
+          wx.cloud.callFunction({
+            name: 'deleteOperationRecord',
+            data: {
+              _id: taskToDelete._id
+            },
+            success: res => {
+              if (res.result.success) {
+                // 从任务列表中删除
+                const allTasks = this.data.allTasks.filter(task => task._id !== taskToDelete._id);
+                
+                // 从events列表中删除相关的日程（根据scheduleIds）
+                const scheduleIds = taskToDelete.scheduleIds || [];
+                const events = this.data.events.filter(event => !scheduleIds.includes(event._id));
+                
+                // 从当日事件列表中删除相关的日程
+                const dayEvents = this.data.dayEvents.filter(event => !scheduleIds.includes(event._id));
+                
+                this.setData({
+                  allTasks,
+                  events,
+                  dayEvents
+                });
+                
+                // 更新任务列表编号
+                this.updateTaskNumbers();
+                
+                // 更新日历显示
+                this.generateCalendar(this.data.year, this.data.month);
+                
+                wx.showToast({
+                  title: '删除成功',
+                  icon: 'success'
+                });
+              } else {
+                wx.showToast({
+                  title: '删除失败',
+                  icon: 'none'
+                });
+              }
+            },
+            fail: err => {
+              console.error('删除任务失败', err);
+              wx.showToast({
+                title: '删除失败',
+                icon: 'none'
+              });
+            },
+            complete: () => {
+              wx.hideLoading();
+            }
+          });
+        }
+      }
+    });
+  },
+
+  /**
+   * 更新任务编号
+   */
+  updateTaskNumbers() {
+    const allTasks = this.data.allTasks.map((task, index) => {
+      return {
+        ...task,
+        taskNumber: index + 1
+      };
+    });
+    
+    this.setData({
+      allTasks
+    });
+  },
+
+  /**
+   * 创建操作记录
+   */
+  createOperationRecord(operationData) {
+    const operationRecord = {
+      ...operationData,
+      operationTime: new Date().toISOString(),
+      _openid: wx.getStorageSync('openid') || '' // 用户标识
+    };
+
+    // 调用云函数创建操作记录
+    wx.cloud.callFunction({
+      name: 'createOperationRecord',
+      data: operationRecord,
+      success: res => {
+        if (res.result.success) {
+          console.log('操作记录创建成功');
+        } else {
+          console.error('操作记录创建失败:', res.result.error);
+        }
+      },
+      fail: err => {
+        console.error('调用云函数失败:', err);
+      }
+    });
+  },
+
+  /**
+   * 一键删除所有任务
+   */
+  deleteAllTasks() {
+    if (this.data.allTasks.length === 0) {
+      wx.showToast({
+        title: '暂无任务可删除',
+        icon: 'none'
+      });
+      return;
+    }
+
+    wx.showModal({
+      title: '确认删除',
+      content: `确定要删除所有 ${this.data.allTasks.length} 个任务吗？这将删除所有相关的日程安排。`,
+      success: (res) => {
+        if (res.confirm) {
+          wx.showLoading({
+            title: '删除中',
+          });
+
+          // 调用云函数批量删除
+          wx.cloud.callFunction({
+            name: 'deleteAllOperationRecords',
+            data: {},
+            success: res => {
+              if (res.result.success) {
+                // 清空本地数据
+                this.setData({
+                  allTasks: [],
+                  events: [],
+                  dayEvents: []
+                });
+
+                // 更新日历显示
+                this.generateCalendar(this.data.year, this.data.month);
+
+                wx.showToast({
+                  title: '删除成功',
+                  icon: 'success'
+                });
+              } else {
+                wx.showToast({
+                  title: '删除失败',
+                  icon: 'none'
+                });
+              }
+            },
+            fail: err => {
+              console.error('批量删除失败', err);
+              wx.showToast({
+                title: '删除失败',
+                icon: 'none'
+              });
+            },
+            complete: () => {
+              wx.hideLoading();
+            }
+          });
+        }
+      }
+    });
+  },
+
+  /**
+   * 清空所有数据（包括历史日程）
+   */
+  clearAllData() {
+    wx.showModal({
+      title: '危险操作⚠️',
+      content: '确定要清空所有日程数据吗？\n\n这将删除：\n• 所有历史日程记录\n• 所有任务操作记录\n• 日历上的所有标记\n\n此操作不可恢复！',
+      confirmText: '确认清空',
+      confirmColor: '#ff4d4f',
+      success: res => {
+        if (res.confirm) {
+          // 二次确认
+          wx.showModal({
+            title: '最后确认',
+            content: '真的要清空所有数据吗？\n这个操作真的无法恢复！',
+            confirmText: '清空',
+            confirmColor: '#ff4d4f',
+            success: res2 => {
+              if (res2.confirm) {
+                wx.showLoading({
+                  title: '清空中...',
+                });
+                
+                // 调用云函数清空所有数据
+                wx.cloud.callFunction({
+                  name: 'deleteAllSchedules',
+                  data: {},
+                  success: res => {
+                    wx.hideLoading();
+                    if (res.result.success) {
+                      // 清空本地数据
+                      this.setData({
+                        allTasks: [],
+                        events: [],
+                        dayEvents: []
+                      });
+                      
+                      // 重新生成日历
+                      this.generateCalendar(this.data.year, this.data.month);
+                      
+                      // 关闭任务管理弹窗
+                      this.setData({
+                        showTaskManagement: false
+                      });
+                      
+                      wx.showToast({
+                        title: res.result.message || '清空成功',
+                        icon: 'success',
+                        duration: 3000
+                      });
+                    } else {
+                      wx.showToast({
+                        title: res.result.error || '清空失败',
+                        icon: 'none'
+                      });
+                    }
+                  },
+                  fail: err => {
+                    wx.hideLoading();
+                    wx.showToast({
+                      title: '网络错误',
+                      icon: 'none'
+                    });
+                    console.error('调用清空云函数失败:', err);
+                  }
+                });
+              }
+            }
+          });
+        }
+      }
+    });
   }
 })

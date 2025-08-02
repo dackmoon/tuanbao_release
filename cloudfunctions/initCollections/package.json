@@ -1,7 +1,7 @@
 {
-  "name": "createCollection",
+  "name": "initCollections",
   "version": "1.0.0",
-  "description": "创建数据库集合",
+  "description": "初始化数据库集合",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,8 +10,5 @@
   "license": "ISC",
   "dependencies": {
     "wx-server-sdk": "~2.6.3"
-  },
-  "engines": {
-    "node": ">=8.9"
   }
 }
