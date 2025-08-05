@@ -200,6 +200,13 @@ Page({
       duration: 2000
     });
   },
+
+  // 导航到备忘录页面
+  navigateToMemo() {
+    wx.navigateTo({
+      url: '/pages/memo/memo'
+    });
+  },
   
   bindViewTap() {
     wx.navigateTo({

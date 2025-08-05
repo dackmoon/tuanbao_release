@@ -1,0 +1,329 @@
+/* pages/memo/memo.wxss */
+page {
+  background-color: #f2f2f7;
+  height: 100vh;
+}
+
+.memo-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 页面头部 */
+.memo-header {
+  background-color: #ffffff;
+  padding: 20rpx 30rpx;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+/* 搜索区域 */
+.search-container {
+  flex: 1;
+  margin-right: 20rpx;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  background-color: #f2f2f7;
+  border-radius: 20rpx;
+  padding: 0 20rpx;
+  height: 70rpx;
+}
+
+.search-input {
+  flex: 1;
+  font-size: 28rpx;
+  color: #333333;
+  height: 70rpx;
+  line-height: 70rpx;
+}
+
+.search-input::placeholder {
+  color: #999999;
+}
+
+.search-btn {
+  padding: 0 24rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f2f2f7;
+  border-radius: 8rpx;
+  margin-left: 10rpx;
+  font-size: 26rpx;
+  color: #666666;
+  transition: all 0.2s ease;
+}
+
+.search-btn:active {
+  background-color: #e0e0e5;
+  transform: scale(0.98);
+}
+
+.search-btn:active .search-icon {
+  opacity: 1;
+}
+
+.search-icon {
+  width: 32rpx;
+  height: 32rpx;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+/* 编辑按钮 */
+.edit-btn {
+  padding: 10rpx 20rpx;
+  background-color: #007AFF;
+  border-radius: 15rpx;
+  min-width: 80rpx;
+  text-align: center;
+}
+
+.edit-text {
+  color: #ffffff;
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+/* 备忘录列表 */
+.memo-list {
+  flex: 1;
+  padding: 0; /* 移除所有padding，让第一项贴合上边沿 */
+  padding-bottom: 140rpx; /* 为悬浮按钮留空间 */
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 200rpx 0; /* 贴合屏幕两侧 */
+}
+
+.empty-icon {
+  font-size: 120rpx;
+  margin-bottom: 30rpx;
+  opacity: 0.6;
+}
+
+.empty-text {
+  font-size: 36rpx;
+  color: #666666;
+  margin-bottom: 10rpx;
+  font-weight: 500;
+}
+
+.empty-hint {
+  font-size: 28rpx;
+  color: #999999;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* 备忘录列表项 */
+.memo-item {
+  background-color: #ffffff;
+  margin: 0; /* 完全贴合屏幕两侧 */
+  padding: 30rpx;
+  display: flex;
+  align-items: flex-start; /* 顶部对齐，适应多行内容 */
+  border-bottom: 1rpx solid #f0f0f0; /* 添加分隔线 */
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+/* 第一个列表项 */
+.memo-item:first-child {
+  border-top: 1rpx solid #f0f0f0; /* 第一项添加顶部边框 */
+}
+
+/* 最后一个列表项 */
+.memo-item:last-child {
+  border-bottom: none; /* 移除最后一项的底部边框 */
+}
+
+.memo-item.edit-mode {
+  padding-left: 20rpx;
+}
+
+.memo-item.selected {
+  background-color: #E3F2FD;
+  border-left: 6rpx solid #007AFF; /* 添加左侧蓝色边框表示选中 */
+}
+
+.memo-item:active {
+  background-color: #f8f8f8;
+}
+
+/* 选择框 */
+.memo-checkbox {
+  margin-right: 20rpx;
+  margin-top: 8rpx; /* 微调对齐位置 */
+}
+
+.checkbox {
+  width: 44rpx;
+  height: 44rpx;
+  border: 3rpx solid #CCCCCC;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.checkbox.checked {
+  background-color: #007AFF;
+  border-color: #007AFF;
+}
+
+.check-icon {
+  color: #ffffff;
+  font-size: 24rpx;
+  font-weight: bold;
+}
+
+/* 备忘录内容区域 */
+.memo-content {
+  flex: 1;
+  align-self: flex-start;
+}
+
+/* 第一行：标签 + 标题 */
+.memo-header-line {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15rpx;
+}
+
+/* 圆形标签 */
+.memo-tag-circle {
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.15);
+  border: 2rpx solid rgba(255, 255, 255, 0.3);
+}
+
+.memo-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #000000;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 第二行：更新时间 */
+.memo-time-line {
+  margin-bottom: 10rpx;
+}
+
+.memo-time {
+  font-size: 24rpx;
+  color: #666666;
+}
+
+/* 第三行：内容预览 */
+.memo-preview-line {
+  text-align: left;
+}
+
+.memo-preview {
+  font-size: 26rpx;
+  color: #888888;
+  line-height: 1.4;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 右箭头 */
+.memo-arrow {
+  margin-left: 20rpx;
+  margin-top: 8rpx; /* 微调对齐位置 */
+}
+
+.arrow-icon {
+  font-size: 36rpx;
+  color: #CCCCCC;
+  font-weight: 300;
+}
+
+/* 底部操作按钮 */
+.bottom-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #ffffff;
+  padding: 30rpx;
+  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.1);
+  z-index: 20;
+}
+
+.delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #FF3B30;
+  color: #ffffff;
+  padding: 24rpx;
+  border-radius: 16rpx;
+  transition: all 0.2s ease;
+}
+
+.delete-btn.disabled {
+  background-color: #CCCCCC;
+  opacity: 0.6;
+}
+
+.delete-icon {
+  font-size: 32rpx;
+  margin-right: 10rpx;
+}
+
+.delete-text {
+  font-size: 30rpx;
+  font-weight: 500;
+}
+
+/* 悬浮添加按钮 */
+.add-btn {
+  position: fixed;
+  bottom: 60rpx;
+  right: 60rpx;
+  width: 120rpx;
+  height: 120rpx;
+  background-color: #007AFF;
+  border-radius: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(0, 122, 255, 0.4);
+  z-index: 30;
+  transition: all 0.2s ease;
+}
+
+.add-btn:active {
+  transform: scale(0.9);
+  box-shadow: 0 4rpx 12rpx rgba(0, 122, 255, 0.3);
+}
+
+.add-icon {
+  color: #ffffff;
+  font-size: 48rpx;
+  font-weight: 300;
+  line-height: 1;
+}

@@ -4,6 +4,8 @@
     "pages/schedule/schedule",
     "pages/record/record",
     "pages/more/more",
+    "pages/memo/memo",
+    "pages/memo/edit/edit",
     "pages/logs/logs",
     "pages/login/login",
     "pages/record/detail/detail",

@@ -1,0 +1,96 @@
+<!--pages/memo/memo.wxml-->
+<view class="memo-container">
+  <!-- 页面头部 -->
+  <view class="memo-header">
+    <!-- 搜索框 -->
+    <view class="search-container">
+      <view class="search-box">
+        <input 
+          class="search-input" 
+          placeholder="搜索备忘录" 
+          value="{{searchValue}}"
+          bindinput="onSearchInput"
+          confirm-type="search"
+          bindconfirm="performSearch"
+        />
+        <view class="search-btn" bindtap="performSearch">
+          <image class="search-icon" src="/images/icons/search.png" mode="aspectFit"></image>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 编辑按钮 -->
+    <view class="edit-btn" bindtap="toggleEditMode">
+      <text class="edit-text">{{isEditMode ? '完成' : '编辑'}}</text>
+    </view>
+  </view>
+
+  <!-- 备忘录列表 -->
+  <scroll-view class="memo-list" scroll-y="true" enhanced="true">
+    <view wx:if="{{memoList.length === 0}}" class="empty-state">
+      <view class="empty-icon">📝</view>
+      <view class="empty-text">暂无备忘录</view>
+      <view class="empty-hint">点击右下角 + 号添加第一个备忘录</view>
+    </view>
+    
+    <view wx:else>
+      <view 
+        wx:for="{{memoList}}" 
+        wx:key="_id" 
+        class="memo-item {{isEditMode ? 'edit-mode' : ''}} {{selectedMemos.indexOf(item._id) > -1 ? 'selected' : ''}}"
+        bindtap="navigateToEdit"
+        data-id="{{item._id}}"
+      >
+        <!-- 选择框（编辑模式下显示） -->
+        <view wx:if="{{isEditMode}}" class="memo-checkbox">
+          <view class="checkbox {{selectedMemos.indexOf(item._id) > -1 ? 'checked' : ''}}">
+            <text wx:if="{{selectedMemos.indexOf(item._id) > -1}}" class="check-icon">✓</text>
+          </view>
+        </view>
+        
+        <!-- 备忘录内容 -->
+        <view class="memo-content">
+          <!-- 第一行：标签 + 标题 -->
+          <view class="memo-header-line">
+            <view 
+              class="memo-tag-circle" 
+              style="background-color: {{tagColors[item.tag]}}"
+            ></view>
+            <text class="memo-title">{{item.title}}</text>
+          </view>
+          
+          <!-- 第二行：更新时间 -->
+          <view class="memo-time-line">
+            <text class="memo-time">{{formatUpdateTime(item.updateTime)}}</text>
+          </view>
+          
+          <!-- 第三行：内容预览 -->
+          <view class="memo-preview-line">
+            <text class="memo-preview">{{item.content}}</text>
+          </view>
+        </view>
+        
+        <!-- 右箭头（非编辑模式下显示） -->
+        <view wx:if="{{!isEditMode}}" class="memo-arrow">
+          <text class="arrow-icon">›</text>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 底部删除按钮（编辑模式下显示） -->
+  <view wx:if="{{isEditMode}}" class="bottom-actions">
+    <view 
+      class="delete-btn {{selectedMemos.length === 0 ? 'disabled' : ''}}"
+      bindtap="deleteSelectedMemos"
+    >
+      <text class="delete-icon">🗑️</text>
+      <text class="delete-text">删除 ({{selectedMemos.length}})</text>
+    </view>
+  </view>
+
+  <!-- 悬浮添加按钮 -->
+  <view wx:if="{{!isEditMode}}" class="add-btn" bindtap="navigateToAdd">
+    <text class="add-icon">+</text>
+  </view>
+</view>

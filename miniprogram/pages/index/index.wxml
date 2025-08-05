@@ -54,7 +54,7 @@
   
   <view class="nav-row">
     <!-- 第二行导航 -->
-    <view class="nav-item" bindtap="showDeveloping">
+    <view class="nav-item" bindtap="navigateToMemo">
       <view class="nav-icon-wrapper">
         <image class="nav-icon" src="/assert/icon/memo_selected.png"></image>
       </view>

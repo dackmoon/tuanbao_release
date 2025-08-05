@@ -1,0 +1,9 @@
+{
+  "name": "addMemo",
+  "version": "1.0.0",
+  "description": "添加备忘录",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}
